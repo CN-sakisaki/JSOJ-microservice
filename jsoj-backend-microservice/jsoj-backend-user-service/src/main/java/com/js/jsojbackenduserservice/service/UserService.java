@@ -12,11 +12,9 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 /**
- * 用户服务
- *
- * @author JianShang
- * @version 1.0.0
- * @time 2024-11-04 12:59:25
+ * 用户接口定义类
+ * @author sakisaki
+ * @date 2025/2/22 15:14
  */
 public interface UserService extends IService<User> {
 
@@ -26,7 +24,7 @@ public interface UserService extends IService<User> {
      * @param userAccount   用户账户
      * @param userPassword  用户密码
      * @param checkPassword 校验密码
-     * @return 新用户 id
+     * @return long
      */
     long userRegister(String userAccount, String userPassword, String checkPassword);
 
@@ -36,7 +34,7 @@ public interface UserService extends IService<User> {
      * @param userAccount  用户账户
      * @param userPassword 用户密码
      * @param request
-     * @return 脱敏后的用户信息
+     * @return LoginUserVO
      */
     LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
 
@@ -48,14 +46,6 @@ public interface UserService extends IService<User> {
      * @return
      */
     User getLoginUser(HttpServletRequest request);
-
-    /**
-     * 获取当前登录用户（允许未登录）
-     *
-     * @param request
-     * @return
-     */
-    User getLoginUserPermitNull(HttpServletRequest request);
 
     /**
      * 是否为管理员
@@ -105,7 +95,7 @@ public interface UserService extends IService<User> {
     List<UserVO> getUserVO(List<User> userList);
 
     /**
-     * 获取查询条件
+     * 构建查询条件
      *
      * @param userQueryRequest
      * @return

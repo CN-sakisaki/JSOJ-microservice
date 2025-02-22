@@ -1,6 +1,5 @@
 package com.js.jsojbackenduserservice.service.impl;
 
-
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -29,7 +28,9 @@ import java.util.stream.Collectors;
 import static com.js.jsojbackendcommon.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
- * 用户服务实现
+ * 用户接口实现类
+ * @author sakisaki
+ * @date 2025/2/22 15:36
  */
 @Service
 @Slf4j
@@ -40,6 +41,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     public static final String SALT = "js";
 
+    /**
+     * 用户注册
+     *
+     * @param userAccount   用户账户
+     * @param userPassword  用户密码
+     * @param checkPassword 校验密码
+     * @return long
+     */
     @Override
     public long userRegister(String userAccount, String userPassword, String checkPassword) {
         // 1. 校验
@@ -78,6 +87,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
     }
 
+    /**
+     * 用户登录
+     *
+     * @param userAccount  用户账户
+     * @param userPassword 用户密码
+     * @param request
+     * @return LoginUserVO
+     */
     @Override
     public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
         // 1. 校验
@@ -132,25 +149,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 获取当前登录用户（允许未登录）
-     *
-     * @param request
-     * @return
-     */
-    @Override
-    public User getLoginUserPermitNull(HttpServletRequest request) {
-        // 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
-        if (currentUser == null || currentUser.getId() == null) {
-            return null;
-        }
-        // 从数据库查询（追求性能的话可以注释，直接走缓存）
-        long userId = currentUser.getId();
-        return this.getById(userId);
-    }
-
-    /**
      * 是否为管理员
      *
      * @param request
@@ -164,6 +162,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return isAdmin(user);
     }
 
+    /**
+     * 是否为管理员
+     *
+     * @param user
+     * @return
+     */
     @Override
     public boolean isAdmin(User user) {
         return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
@@ -184,6 +188,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return true;
     }
 
+    /**
+     * 获取脱敏的已登录用户信息
+     *
+     * @return
+     */
     @Override
     public LoginUserVO getLoginUserVO(User user) {
         if (user == null) {
@@ -194,6 +203,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return loginUserVO;
     }
 
+    /**
+     * 获取脱敏的用户信息
+     *
+     * @param user
+     * @return
+     */
     @Override
     public UserVO getUserVO(User user) {
         if (user == null) {
@@ -204,6 +219,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userVO;
     }
 
+    /**
+     * 获取脱敏的用户信息集
+     *
+     * @param userList
+     * @return
+     */
     @Override
     public List<UserVO> getUserVO(List<User> userList) {
         if (CollUtil.isEmpty(userList)) {
@@ -212,6 +233,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return userList.stream().map(this::getUserVO).collect(Collectors.toList());
     }
 
+    /**
+     * 构建查询条件
+     *
+     * @param userQueryRequest
+     * @return
+     */
     @Override
     public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
         if (userQueryRequest == null) {

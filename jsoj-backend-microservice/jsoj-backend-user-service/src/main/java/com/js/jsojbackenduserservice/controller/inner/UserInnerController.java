@@ -13,9 +13,9 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * @author JianShang
- * @version 1.0.0
- * @time 2024-11-04 02:53:19
+ * 服务内部调用类
+ * @author sakisaki
+ * @date 2025/2/22 15:03
  */
 @RestController
 @RequestMapping("/inner")
@@ -24,12 +24,22 @@ public class UserInnerController implements UserFeignClient {
     @Resource
     private UserService userService;
 
+    /**
+     * 根据Id获取用户
+     * @param userId 用户Id
+     * @return User
+     */
     @Override
     @GetMapping("/get/id")
     public User getById(@RequestParam("userId") long userId) {
         return userService.getById(userId);
     }
 
+    /**
+     * 根据id集合获取用户
+     * @param
+     * @return
+     */
     @Override
     @GetMapping("/get/ids")
     public List<User> listByIds(@RequestParam("idList") Collection<Long> idList) {

@@ -1,7 +1,6 @@
 package com.js.jsojbackenduserservice.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-
 import com.js.jsojbackendcommon.annotation.AuthCheck;
 import com.js.jsojbackendcommon.common.BaseResponse;
 import com.js.jsojbackendcommon.common.DeleteRequest;
@@ -14,13 +13,14 @@ import com.js.jsojbackendmodel.dto.user.*;
 import com.js.jsojbackendmodel.entity.User;
 import com.js.jsojbackendmodel.vo.LoginUserVO;
 import com.js.jsojbackendmodel.vo.UserVO;
-
 import com.js.jsojbackenduserservice.service.UserService;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
@@ -29,11 +29,9 @@ import static com.js.jsojbackenduserservice.service.impl.UserServiceImpl.SALT;
 
 
 /**
- * 用户接口
- *
- * @author JianShang
- * @version 1.0.0
- * @time 2024-11-04 02:19:07
+ * 用户相关控制层
+ * @author sakisaki
+ * @date 2025/2/22 14:59
  */
 @RestController
 @RequestMapping("/")
@@ -50,7 +48,7 @@ public class UserController {
      * 用户注册
      *
      * @param userRegisterRequest
-     * @return
+     * @return BaseResponse
      */
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
@@ -72,7 +70,7 @@ public class UserController {
      *
      * @param userLoginRequest
      * @param request
-     * @return
+     * @return BaseResponse
      */
     @PostMapping("/login")
     public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
@@ -93,7 +91,7 @@ public class UserController {
      * 用户注销
      *
      * @param request
-     * @return
+     * @return BaseResponse
      */
     @PostMapping("/logout")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
@@ -108,7 +106,7 @@ public class UserController {
      * 获取当前登录用户
      *
      * @param request
-     * @return
+     * @return BaseResponse
      */
     @GetMapping("/get/login")
     public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
@@ -121,11 +119,11 @@ public class UserController {
     // region 增删改查
 
     /**
-     * 创建用户
+     * 创建用户（仅管理员）
      *
      * @param userAddRequest
      * @param request
-     * @return
+     * @return BaseResponse
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -145,11 +143,11 @@ public class UserController {
     }
 
     /**
-     * 删除用户
+     * 删除用户（仅管理员）
      *
      * @param deleteRequest
      * @param request
-     * @return
+     * @return BaseResponse
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -162,16 +160,17 @@ public class UserController {
     }
 
     /**
-     * 更新用户
+     * 更新用户（仅管理员）
      *
      * @param userUpdateRequest
      * @param request
-     * @return
+     * @return BaseResponse<Boolean>
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @ApiOperation(value = "更新用户（仅管理员）")
     public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
-            HttpServletRequest request) {
+                                            HttpServletRequest request) {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -185,9 +184,9 @@ public class UserController {
     /**
      * 根据 id 获取用户（仅管理员）
      *
-     * @param id
+     * @param id 用户Id
      * @param request
-     * @return
+     * @return BaseResponse
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
@@ -203,9 +202,9 @@ public class UserController {
     /**
      * 根据 id 获取包装类
      *
-     * @param id
+     * @param id 用户Id
      * @param request
-     * @return
+     * @return BaseResponse
      */
     @GetMapping("/get/vo")
     public BaseResponse<UserVO> getUserVOById(long id, HttpServletRequest request) {
@@ -219,12 +218,12 @@ public class UserController {
      *
      * @param userQueryRequest
      * @param request
-     * @return
+     * @return BaseResponse
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
-            HttpServletRequest request) {
+                                                   HttpServletRequest request) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
         Page<User> userPage = userService.page(new Page<>(current, size),
@@ -237,11 +236,11 @@ public class UserController {
      *
      * @param userQueryRequest
      * @param request
-     * @return
+     * @return BaseResponse
      */
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest,
-            HttpServletRequest request) {
+                                                       HttpServletRequest request) {
         if (userQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -249,8 +248,7 @@ public class UserController {
         long size = userQueryRequest.getPageSize();
         // 限制爬虫
         ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        Page<User> userPage = userService.page(new Page<>(current, size),
-                userService.getQueryWrapper(userQueryRequest));
+        Page<User> userPage = userService.page(new Page<>(current, size), userService.getQueryWrapper(userQueryRequest));
         Page<UserVO> userVOPage = new Page<>(current, size, userPage.getTotal());
         List<UserVO> userVO = userService.getUserVO(userPage.getRecords());
         userVOPage.setRecords(userVO);
@@ -264,11 +262,11 @@ public class UserController {
      *
      * @param userUpdateMyRequest
      * @param request
-     * @return
+     * @return BaseResponse
      */
     @PostMapping("/update/my")
     public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
-            HttpServletRequest request) {
+                                              HttpServletRequest request) {
         if (userUpdateMyRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }

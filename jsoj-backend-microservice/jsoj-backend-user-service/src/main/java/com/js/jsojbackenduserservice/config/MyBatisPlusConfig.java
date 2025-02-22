@@ -20,8 +20,6 @@ public class MyBatisPlusConfig {
 
     /**
      * 拦截器配置
-     *
-     * @return
      */
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {
