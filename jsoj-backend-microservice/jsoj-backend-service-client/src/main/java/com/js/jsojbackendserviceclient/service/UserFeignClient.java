@@ -1,12 +1,9 @@
 package com.js.jsojbackendserviceclient.service;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.js.jsojbackendcommon.common.ErrorCode;
 import com.js.jsojbackendcommon.exception.BusinessException;
-import com.js.jsojbackendmodel.dto.user.UserQueryRequest;
 import com.js.jsojbackendmodel.entity.User;
 import com.js.jsojbackendmodel.enums.UserRoleEnum;
-import com.js.jsojbackendmodel.vo.LoginUserVO;
 import com.js.jsojbackendmodel.vo.UserVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.openfeign.FeignClient;

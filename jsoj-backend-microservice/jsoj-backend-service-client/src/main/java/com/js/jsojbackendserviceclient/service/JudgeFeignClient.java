@@ -8,11 +8,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
- * 判题服务
- *
- * @author JianShang
- * @version 1.0.0
- * @time 2024-10-24 02:44:33
+ * 判题内部服务接口
+ * @author sakisaki
+ * @date 2025/2/22 15:06
  */
 @FeignClient(name = "jsoj-backend-judge-service", path = "/api/judge/inner")
 public interface JudgeFeignClient {
