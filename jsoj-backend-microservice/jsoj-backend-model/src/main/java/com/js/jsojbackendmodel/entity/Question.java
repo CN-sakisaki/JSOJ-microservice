@@ -9,9 +9,8 @@ import java.util.Date;
 /**
  * @author JianShang
  * @version 1.0.0
- * @description 题目
+ * @description 题目表
  * @date 2024-10-16 06:47:50
- * @see Serializable
  */
 @TableName(value ="question")
 @Data

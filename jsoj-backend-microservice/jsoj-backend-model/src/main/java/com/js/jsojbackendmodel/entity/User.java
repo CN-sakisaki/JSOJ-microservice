@@ -7,9 +7,9 @@ import java.io.Serializable;
 import java.util.Date;
 
 /**
- * 用户
- *
-  
+ * 用户表
+ * @author sakisaki
+ * @date 2025/2/22 19:08
  */
 @TableName(value = "user")
 @Data

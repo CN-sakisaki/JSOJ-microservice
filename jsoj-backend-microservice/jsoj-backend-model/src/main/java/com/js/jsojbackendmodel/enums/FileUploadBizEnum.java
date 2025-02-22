@@ -1,5 +1,6 @@
 package com.js.jsojbackendmodel.enums;
 
+import lombok.Getter;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.Arrays;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
  * @description 文件上传业务类型枚举
  * @date 2024-10-16 04:04:18
  */
+@Getter
 public enum FileUploadBizEnum {
 
     USER_AVATAR("用户头像", "user_avatar");
@@ -52,11 +54,4 @@ public enum FileUploadBizEnum {
         return null;
     }
 
-    public String getValue() {
-        return value;
-    }
-
-    public String getText() {
-        return text;
-    }
 }

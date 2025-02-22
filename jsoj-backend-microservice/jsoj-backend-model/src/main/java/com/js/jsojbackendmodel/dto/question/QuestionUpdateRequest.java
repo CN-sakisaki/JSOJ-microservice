@@ -11,7 +11,7 @@ import java.util.List;
  * @version 1.0.0
  * @description 更新请求
  * @date 2024-10-15 03:36:47
- * @see Serializable
+
  */
 @Data
 public class QuestionUpdateRequest implements Serializable {

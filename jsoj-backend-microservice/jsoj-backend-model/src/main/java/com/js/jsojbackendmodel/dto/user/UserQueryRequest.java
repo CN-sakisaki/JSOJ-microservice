@@ -8,8 +8,8 @@ import java.io.Serializable;
 
 /**
  * 用户查询请求
- *
-  
+ * @author sakisaki
+ * @date 2025/2/22 19:10
  */
 @EqualsAndHashCode(callSuper = true)
 @Data

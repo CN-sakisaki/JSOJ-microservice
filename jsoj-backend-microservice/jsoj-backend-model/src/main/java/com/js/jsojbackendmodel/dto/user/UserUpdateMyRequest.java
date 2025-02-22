@@ -6,8 +6,8 @@ import java.io.Serializable;
 
 /**
  * 用户更新个人信息请求
- *
-  
+ * @author sakisaki
+ * @date 2025/2/22 19:09
  */
 @Data
 public class UserUpdateMyRequest implements Serializable {

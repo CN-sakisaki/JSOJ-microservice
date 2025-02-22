@@ -18,12 +18,11 @@ import com.js.jsojbackendmodel.entity.QuestionSubmit;
 import com.js.jsojbackendmodel.entity.User;
 import com.js.jsojbackendmodel.vo.QuestionSubmitVO;
 import com.js.jsojbackendmodel.vo.QuestionVO;
-
 import com.js.jsojbackendquestionservice.service.QuestionService;
 import com.js.jsojbackendquestionservice.service.QuestionSubmitService;
-
 import com.js.jsojbackendserviceclient.service.UserFeignClient;
 import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.BeanUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -106,16 +105,8 @@ public class QuestionController {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User user = userFeignClient.getLoginUser(request);
-        long id = deleteRequest.getId();
-        // 判断是否存在
-        Question oldQuestion = questionService.getById(id);
-        ThrowUtils.throwIf(oldQuestion == null, ErrorCode.NOT_FOUND_ERROR);
-        // 仅本人或管理员可删除
-        if (!oldQuestion.getUserId().equals(user.getId()) && !userFeignClient.isAdmin(user)) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-        }
-        boolean b = questionService.removeById(id);
+        judgment(deleteRequest.getId(), request);
+        boolean b = questionService.removeById(deleteRequest.getId());
         return ResultUtils.success(b);
     }
 
@@ -225,13 +216,7 @@ public class QuestionController {
     @PostMapping("/list/page/vo")
     public BaseResponse<Page<QuestionVO>> listQuestionVOByPage(@RequestBody QuestionQueryRequest questionQueryRequest,
                                                                HttpServletRequest request) {
-        long current = questionQueryRequest.getCurrent();
-        long size = questionQueryRequest.getPageSize();
-        // 限制爬虫
-        ThrowUtils.throwIf(size > 20, ErrorCode.PARAMS_ERROR);
-        Page<Question> questionPage = questionService.page(new Page<>(current, size),
-                questionService.getQueryWrapper(questionQueryRequest));
-        return ResultUtils.success(questionService.getQuestionVOPage(questionPage, request));
+        return getPageBaseResponse(questionQueryRequest, request);
     }
 
     /**
@@ -249,6 +234,11 @@ public class QuestionController {
         }
         User loginUser = userFeignClient.getLoginUser(request);
         questionQueryRequest.setUserId(loginUser.getId());
+        return getPageBaseResponse(questionQueryRequest, request);
+    }
+
+    @NotNull
+    private BaseResponse<Page<QuestionVO>> getPageBaseResponse(QuestionQueryRequest questionQueryRequest, HttpServletRequest request) {
         long current = questionQueryRequest.getCurrent();
         long size = questionQueryRequest.getPageSize();
         // 限制爬虫
@@ -291,8 +281,17 @@ public class QuestionController {
         }
         // 参数校验
         questionService.validQuestion(question, false);
+        judgment(questionEditRequest.getId(), request);
+        boolean result = questionService.updateById(question);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 判断是否登录和题目是否存在
+     * @param id
+     */
+    private void judgment(long id, HttpServletRequest request) {
         User loginUser = userFeignClient.getLoginUser(request);
-        long id = questionEditRequest.getId();
         // 判断是否存在
         Question oldQuestion = questionService.getById(id);
         ThrowUtils.throwIf(oldQuestion == null, ErrorCode.NOT_FOUND_ERROR);
@@ -300,8 +299,6 @@ public class QuestionController {
         if (!oldQuestion.getUserId().equals(loginUser.getId()) && !userFeignClient.isAdmin(loginUser)) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
         }
-        boolean result = questionService.updateById(question);
-        return ResultUtils.success(result);
     }
 
 

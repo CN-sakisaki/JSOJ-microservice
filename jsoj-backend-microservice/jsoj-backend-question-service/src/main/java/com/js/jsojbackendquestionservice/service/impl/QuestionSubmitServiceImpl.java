@@ -107,6 +107,9 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
      */
     @Override
     public QueryWrapper<QuestionSubmit> getQueryWrapper(QuestionSubmitQueryRequest questionSubmitQueryRequest) {
+        if (questionSubmitQueryRequest == null) {
+            return new QueryWrapper<>();
+        }
         Long questionId = questionSubmitQueryRequest.getQuestionId();
         String language = questionSubmitQueryRequest.getLanguage();
         Integer status = questionSubmitQueryRequest.getStatus();
@@ -115,9 +118,6 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         String sortOrder = questionSubmitQueryRequest.getSortOrder();
 
         QueryWrapper<QuestionSubmit> queryWrapper = new QueryWrapper<>();
-        if (questionSubmitQueryRequest == null) {
-            return queryWrapper;
-        }
 
         // 拼接查询条件
         queryWrapper.eq(ObjectUtils.isNotEmpty(language), "language", language);
