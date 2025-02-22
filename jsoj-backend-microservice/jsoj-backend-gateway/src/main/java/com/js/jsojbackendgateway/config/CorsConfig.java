@@ -10,10 +10,8 @@ import java.util.Arrays;
 
 /**
  * 网关处理跨域
- *
- * @author JianShang
- * @version 1.0.0
- * @time 2024-11-04 06:40:59
+ * @author sakisaki
+ * @date 2025/2/22 14:53
  */
 @Configuration
 public class CorsConfig {
@@ -28,7 +26,7 @@ public class CorsConfig {
         // 设置是否允许发送凭据
         config.setAllowCredentials(true);
         // 设置线上前端项目地址,设置允许的源模式
-        config.setAllowedOriginPatterns(Arrays.asList("http://localhost:8080", "http://127.0.0.1:8080", "http://oj.website-of-js.cn", "http://111.230.49.155:79"));
+        config.setAllowedOriginPatterns(Arrays.asList("http://localhost:8080", "http://127.0.0.1:8080"));
         // 注册 CORS 配置
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         // 将 CORS 配置应用到所有路径

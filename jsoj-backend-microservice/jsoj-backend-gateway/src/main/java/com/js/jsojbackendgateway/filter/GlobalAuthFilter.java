@@ -18,15 +18,13 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * 网关过滤器
- *
- * @author JianShang
- * @version 1.0.0
- * @time 2024-11-05 09:56:19
+ * @author sakisaki
+ * @date 2025/2/22 14:52
  */
 @Component
 public class GlobalAuthFilter implements GlobalFilter, Ordered {
 
-    private AntPathMatcher matcher = new AntPathMatcher();
+    private final AntPathMatcher matcher = new AntPathMatcher();
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
@@ -36,7 +34,7 @@ public class GlobalAuthFilter implements GlobalFilter, Ordered {
         if (matcher.match("/**/inner/**", path)) {
             response.setStatusCode(HttpStatus.FORBIDDEN);
             DataBufferFactory dataBufferFactory = response.bufferFactory();
-            DataBuffer dataBuffer = dataBufferFactory.wrap(String.valueOf("无权限").getBytes(StandardCharsets.UTF_8));
+            DataBuffer dataBuffer = dataBufferFactory.wrap("无权限".getBytes(StandardCharsets.UTF_8));
             return response.writeWith(Mono.just(dataBuffer));
         }
         // TODO 统一权限校验，JWT
