@@ -2,14 +2,13 @@ package com.js.jsojbackendcommon.constant;
 
 /**
  * 文件常量
- *
-  
+ * @author sakisaki
+ * @date 2025/2/22 14:30
  */
 public interface FileConstant {
 
     /**
      * COS 访问地址
-     * todo 需替换配置
      */
     String COS_HOST = "https://js.icu";
 }

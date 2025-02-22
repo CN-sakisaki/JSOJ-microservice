@@ -2,8 +2,8 @@ package com.js.jsojbackendcommon.constant;
 
 /**
  * 用户常量
- *
-  
+ * @author sakisaki
+ * @date 2025/2/22 14:29
  */
 public interface UserConstant {
 

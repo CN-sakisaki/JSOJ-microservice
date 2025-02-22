@@ -7,9 +7,8 @@ import java.lang.annotation.Target;
 
 /**
  * 权限校验
- *
- * @author jsnlg
-
+ * @author sakisaki
+ * @date 2025/2/22 14:32
  */
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
@@ -17,8 +16,6 @@ public @interface AuthCheck {
 
     /**
      * 必须有某个角色
-     *
-     * @return
      */
     String mustRole() default "";
 

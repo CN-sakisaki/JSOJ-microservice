@@ -1,12 +1,13 @@
 package com.js.jsojbackendcommon.common;
 
+import lombok.Getter;
+
 /**
- * 自定义错误码
- *
- * @author JianShang
- * @version 1.0.0
- * @time 2024-11-03 10:58:23
+ * 自定义状态码
+ * @author sakisaki
+ * @date 2025/2/22 14:42
  */
+@Getter
 public enum ErrorCode {
 
     SUCCESS(0, "ok"),
@@ -25,21 +26,13 @@ public enum ErrorCode {
     private final int code;
 
     /**
-     * 信息
+     * 状态信息
      */
     private final String message;
 
     ErrorCode(int code, String message) {
         this.code = code;
         this.message = message;
-    }
-
-    public int getCode() {
-        return code;
-    }
-
-    public String getMessage() {
-        return message;
     }
 
 }

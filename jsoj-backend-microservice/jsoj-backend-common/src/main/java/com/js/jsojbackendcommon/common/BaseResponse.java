@@ -6,17 +6,25 @@ import java.io.Serializable;
 
 /**
  * 通用返回类
- *
- * @param <T>
-  
+ * @author sakisaki
+ * @date 2025/2/22 14:31
  */
 @Data
 public class BaseResponse<T> implements Serializable {
 
+    /**
+     * 状态码
+     */
     private int code;
 
+    /**
+     * 数据集
+     */
     private T data;
 
+    /**
+     * 状态信息
+     */
     private String message;
 
     public BaseResponse(int code, T data, String message) {

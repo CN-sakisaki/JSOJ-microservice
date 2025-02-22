@@ -5,8 +5,8 @@ import com.js.jsojbackendcommon.common.ErrorCode;
 
 /**
  * 抛异常工具类
- *
-  
+ * @author sakisaki
+ * @date 2025/2/22 14:28
  */
 public class ThrowUtils {
 
