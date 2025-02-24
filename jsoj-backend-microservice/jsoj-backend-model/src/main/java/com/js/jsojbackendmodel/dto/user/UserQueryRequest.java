@@ -1,6 +1,6 @@
 package com.js.jsojbackendmodel.dto.user;
 
-import com.js.jsojbackendcommon.common.PageRequest;
+import com.js.jsojbackendmodel.request.PageRequest;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

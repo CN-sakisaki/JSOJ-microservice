@@ -4,11 +4,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-
 import com.js.jsojbackendcommon.common.ErrorCode;
-import com.js.jsojbackendcommon.constant.CommonConstant;
 import com.js.jsojbackendcommon.exception.BusinessException;
 import com.js.jsojbackendcommon.utils.SqlUtils;
+import com.js.jsojbackendmodel.constant.CommonConstant;
 import com.js.jsojbackendmodel.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.js.jsojbackendmodel.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.js.jsojbackendmodel.entity.Question;

@@ -1,4 +1,4 @@
-package com.js.jsojbackendcommon.constant;
+package com.js.jsojbackendmodel.constant;
 
 /**
  * 文件常量

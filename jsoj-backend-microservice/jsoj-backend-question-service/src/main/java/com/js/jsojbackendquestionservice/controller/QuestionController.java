@@ -4,19 +4,14 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.js.jsojbackendcommon.annotation.AuthCheck;
 import com.js.jsojbackendcommon.common.BaseResponse;
-import com.js.jsojbackendcommon.common.DeleteRequest;
 import com.js.jsojbackendcommon.common.ErrorCode;
 import com.js.jsojbackendcommon.common.ResultUtils;
-import com.js.jsojbackendcommon.constant.UserConstant;
 import com.js.jsojbackendcommon.exception.BusinessException;
 import com.js.jsojbackendcommon.exception.ThrowUtils;
+import com.js.jsojbackendmodel.constant.UserConstant;
 import com.js.jsojbackendmodel.dto.question.*;
-import com.js.jsojbackendmodel.dto.questionsubmit.QuestionSubmitAddRequest;
-import com.js.jsojbackendmodel.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.js.jsojbackendmodel.entity.Question;
-import com.js.jsojbackendmodel.entity.QuestionSubmit;
-import com.js.jsojbackendmodel.entity.User;
-import com.js.jsojbackendmodel.vo.QuestionSubmitVO;
+import com.js.jsojbackendmodel.request.DeleteRequest;
 import com.js.jsojbackendmodel.vo.QuestionVO;
 import com.js.jsojbackendquestionservice.service.QuestionService;
 import com.js.jsojbackendquestionservice.service.QuestionSubmitService;
@@ -83,8 +78,8 @@ public class QuestionController {
         }
         // 校验添加题目的必要参数是否为空
         questionService.validQuestion(question, true);
-        User loginUser = userFeignClient.getLoginUser(request);
-        question.setUserId(loginUser.getId());
+        // User loginUser = userFeignClient.getLoginUser(request);
+        // question.setUserId(loginUser.getId());
         question.setFavourNum(0);
         question.setThumbNum(0);
         boolean result = questionService.save(question);
@@ -164,10 +159,10 @@ public class QuestionController {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
         // 不是管理员不能获取全部信息
-        User loginUser = userFeignClient.getLoginUser(request);
-        if (!question.getUserId().equals(loginUser.getId()) && !userFeignClient.isAdmin(loginUser)) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-        }
+        // User loginUser = userFeignClient.getLoginUser(request);
+        // if (!question.getUserId().equals(loginUser.getId()) && !userFeignClient.isAdmin(loginUser)) {
+        //     throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        // }
         return ResultUtils.success(question);
     }
 
@@ -232,8 +227,8 @@ public class QuestionController {
         if (questionQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userFeignClient.getLoginUser(request);
-        questionQueryRequest.setUserId(loginUser.getId());
+        // User loginUser = userFeignClient.getLoginUser(request);
+        // questionQueryRequest.setUserId(loginUser.getId());
         return getPageBaseResponse(questionQueryRequest, request);
     }
 
@@ -291,14 +286,14 @@ public class QuestionController {
      * @param id
      */
     private void judgment(long id, HttpServletRequest request) {
-        User loginUser = userFeignClient.getLoginUser(request);
+        // User loginUser = userFeignClient.getLoginUser(request);
         // 判断是否存在
         Question oldQuestion = questionService.getById(id);
         ThrowUtils.throwIf(oldQuestion == null, ErrorCode.NOT_FOUND_ERROR);
         // 仅本人或管理员可编辑
-        if (!oldQuestion.getUserId().equals(loginUser.getId()) && !userFeignClient.isAdmin(loginUser)) {
-            throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
-        }
+        // if (!oldQuestion.getUserId().equals(loginUser.getId()) && !userFeignClient.isAdmin(loginUser)) {
+        //     throw new BusinessException(ErrorCode.NO_AUTH_ERROR);
+        // }
     }
 
 
@@ -309,17 +304,17 @@ public class QuestionController {
      * @param request
      * @return 提交记录的 id
      */
-    @PostMapping("/question_submit/do")
-    public BaseResponse<Long> doSubmitQuestion(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
-                                               HttpServletRequest request) {
-        if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        // 登录
-        final User loginUser = userFeignClient.getLoginUser(request);
-        long questionSubmitId = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
-        return ResultUtils.success(questionSubmitId);
-    }
+    // @PostMapping("/question_submit/do")
+    // public BaseResponse<Long> doSubmitQuestion(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
+    //                                            HttpServletRequest request) {
+    //     if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
+    //         throw new BusinessException(ErrorCode.PARAMS_ERROR);
+    //     }
+    //     // 登录
+    //     final User loginUser = userFeignClient.getLoginUser(request);
+    //     long questionSubmitId = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
+    //     return ResultUtils.success(questionSubmitId);
+    // }
 
     /**
      * 分页获取题目提交列表（除了管理员外，其他普通用户只能看到非答案、提交的代码等公开信息）
@@ -328,17 +323,17 @@ public class QuestionController {
      * @param request
      * @return
      */
-    @PostMapping("/question_submit/list/page")
-    public BaseResponse<Page<QuestionSubmitVO>> listQuestionSubmitByPage(@RequestBody QuestionSubmitQueryRequest questionSubmitQueryRequest,
-                                                                         HttpServletRequest request) {
-        long current = questionSubmitQueryRequest.getCurrent();
-        long pageSize = questionSubmitQueryRequest.getPageSize();
-
-        // 从数据库中查询到原始的题目提交信息
-        Page<QuestionSubmit> questionSubmitPage = questionSubmitService.page(new Page<>(current, pageSize), questionSubmitService.getQueryWrapper(questionSubmitQueryRequest));
-        final User loginUer = userFeignClient.getLoginUser(request);
-        // 返回脱敏信息
-        Page<QuestionSubmitVO> questionSubmitVOPage = questionSubmitService.getQuestionSubmitVOPage(questionSubmitPage, loginUer);
-        return ResultUtils.success(questionSubmitVOPage);
-    }
+    // @PostMapping("/question_submit/list/page")
+    // public BaseResponse<Page<QuestionSubmitVO>> listQuestionSubmitByPage(@RequestBody QuestionSubmitQueryRequest questionSubmitQueryRequest,
+    //                                                                      HttpServletRequest request) {
+    //     long current = questionSubmitQueryRequest.getCurrent();
+    //     long pageSize = questionSubmitQueryRequest.getPageSize();
+    //
+    //     // 从数据库中查询到原始的题目提交信息
+    //     Page<QuestionSubmit> questionSubmitPage = questionSubmitService.page(new Page<>(current, pageSize), questionSubmitService.getQueryWrapper(questionSubmitQueryRequest));
+    //     final User loginUer = userFeignClient.getLoginUser(request);
+    //     // 返回脱敏信息
+    //     Page<QuestionSubmitVO> questionSubmitVOPage = questionSubmitService.getQuestionSubmitVOPage(questionSubmitPage, loginUer);
+    //     return ResultUtils.success(questionSubmitVOPage);
+    // }
 }

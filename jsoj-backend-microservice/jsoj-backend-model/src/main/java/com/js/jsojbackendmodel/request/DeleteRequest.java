@@ -1,4 +1,4 @@
-package com.js.jsojbackendcommon.common;
+package com.js.jsojbackendmodel.request;
 
 import lombok.Data;
 

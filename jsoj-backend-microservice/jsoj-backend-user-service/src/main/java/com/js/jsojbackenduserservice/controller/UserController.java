@@ -3,15 +3,14 @@ package com.js.jsojbackenduserservice.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.js.jsojbackendcommon.annotation.AuthCheck;
 import com.js.jsojbackendcommon.common.BaseResponse;
-import com.js.jsojbackendcommon.common.DeleteRequest;
 import com.js.jsojbackendcommon.common.ErrorCode;
 import com.js.jsojbackendcommon.common.ResultUtils;
-import com.js.jsojbackendcommon.constant.UserConstant;
 import com.js.jsojbackendcommon.exception.BusinessException;
 import com.js.jsojbackendcommon.exception.ThrowUtils;
+import com.js.jsojbackendmodel.constant.UserConstant;
 import com.js.jsojbackendmodel.dto.user.*;
 import com.js.jsojbackendmodel.entity.User;
-import com.js.jsojbackendmodel.vo.LoginUserVO;
+import com.js.jsojbackendmodel.request.DeleteRequest;
 import com.js.jsojbackendmodel.vo.UserVO;
 import com.js.jsojbackenduserservice.service.UserService;
 import io.swagger.annotations.ApiOperation;
@@ -69,11 +68,10 @@ public class UserController {
      * 用户登录
      *
      * @param userLoginRequest
-     * @param request
      * @return BaseResponse
      */
     @PostMapping("/login")
-    public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
+    public BaseResponse<UserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest) {
         if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -82,8 +80,20 @@ public class UserController {
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword, request);
-        return ResultUtils.success(loginUserVO);
+        UserVO userVO = userService.userLogin(userAccount, userPassword);
+        return ResultUtils.success(userVO);
+    }
+
+    /**
+     * 根据refreshToken刷新token
+     * @param
+     * @return
+     */
+    @GetMapping("/get/token")
+    public BaseResponse<?> baseRefreshTokenGetToken(@RequestParam long id) {
+        ThrowUtils.throwIf(id <= 0, ErrorCode.OPERATION_ERROR);
+        String newToken = userService.baseRefreshTokenGetToken(id);
+        return ResultUtils.success(newToken);
     }
 
 
@@ -109,9 +119,8 @@ public class UserController {
      * @return BaseResponse
      */
     @GetMapping("/get/login")
-    public BaseResponse<LoginUserVO> getLoginUser(HttpServletRequest request) {
-        User user = userService.getLoginUser(request);
-        return ResultUtils.success(userService.getLoginUserVO(user));
+    public BaseResponse<UserVO> getLoginUser(HttpServletRequest request) {
+        return null;
     }
 
     // endregion
@@ -185,12 +194,11 @@ public class UserController {
      * 根据 id 获取用户（仅管理员）
      *
      * @param id 用户Id
-     * @param request
      * @return BaseResponse
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<User> getUserById(long id, HttpServletRequest request) {
+    public BaseResponse<User> getUserById(long id) {
         if (id <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -203,27 +211,24 @@ public class UserController {
      * 根据 id 获取包装类
      *
      * @param id 用户Id
-     * @param request
      * @return BaseResponse
      */
     @GetMapping("/get/vo")
-    public BaseResponse<UserVO> getUserVOById(long id, HttpServletRequest request) {
-        BaseResponse<User> response = getUserById(id, request);
+    public BaseResponse<UserVO> getUserVOById(long id) {
+        BaseResponse<User> response = getUserById(id);
         User user = response.getData();
         return ResultUtils.success(userService.getUserVO(user));
     }
 
     /**
      * 分页获取用户列表（仅管理员）
-     *
      * @param userQueryRequest
-     * @param request
      * @return BaseResponse
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest,
-                                                   HttpServletRequest request) {
+    @ApiOperation(value = "分页获取用户列表（仅管理员）")
+    public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
         Page<User> userPage = userService.page(new Page<>(current, size),
@@ -270,10 +275,10 @@ public class UserController {
         if (userUpdateMyRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        User loginUser = userService.getLoginUser(request);
+        // User loginUser = userService.getLoginUser(request);
         User user = new User();
         BeanUtils.copyProperties(userUpdateMyRequest, user);
-        user.setId(loginUser.getId());
+        // user.setId(loginUser.getId());
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);

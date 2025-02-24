@@ -1,7 +1,5 @@
 package com.js.jsojbackendserviceclient.service;
 
-import com.js.jsojbackendcommon.common.ErrorCode;
-import com.js.jsojbackendcommon.exception.BusinessException;
 import com.js.jsojbackendmodel.entity.User;
 import com.js.jsojbackendmodel.enums.UserRoleEnum;
 import com.js.jsojbackendmodel.vo.UserVO;
@@ -10,11 +8,10 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.Collection;
 import java.util.List;
 
-import static com.js.jsojbackendcommon.constant.UserConstant.USER_LOGIN_STATE;
+// import static com.js.jsojbackendmodel.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
  * 用户内部服务接口
@@ -43,21 +40,21 @@ public interface UserFeignClient {
     @GetMapping("/get/ids")
     List<User> listByIds(@RequestParam("idList") Collection<Long> idList);
 
-    /**
-     * 获取当前登录用户
-     *
-     * @param request
-     * @return User
-     */
-    default User getLoginUser(HttpServletRequest request) {
-        // 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
-        if (currentUser == null || currentUser.getId() == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
-        return currentUser;
-    }
+    // /**
+    //  * 获取当前登录用户
+    //  *
+    //  * @param request
+    //  * @return User
+    //  */
+    // default User getLoginUser(HttpServletRequest request) {
+    //     // 先判断是否已登录
+    //     Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
+    //     User currentUser = (User) userObj;
+    //     if (currentUser == null || currentUser.getId() == null) {
+    //         throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+    //     }
+    //     return currentUser;
+    // }
 
     /**
      * 是否为管理员

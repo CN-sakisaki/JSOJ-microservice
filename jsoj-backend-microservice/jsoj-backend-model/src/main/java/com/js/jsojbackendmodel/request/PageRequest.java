@@ -1,6 +1,6 @@
-package com.js.jsojbackendcommon.common;
+package com.js.jsojbackendmodel.request;
 
-import com.js.jsojbackendcommon.constant.CommonConstant;
+import com.js.jsojbackendmodel.constant.CommonConstant;
 import lombok.Data;
 
 /**
