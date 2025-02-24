@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.js.jsojbackendmodel.dto.user.UserQueryRequest;
 import com.js.jsojbackendmodel.entity.User;
-import com.js.jsojbackendmodel.vo.LoginUserVO;
 import com.js.jsojbackendmodel.vo.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
@@ -36,16 +35,10 @@ public interface UserService extends IService<User> {
      * @param request
      * @return LoginUserVO
      */
-    LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request);
+    UserVO userLogin(String userAccount, String userPassword);
 
 
-    /**
-     * 获取当前登录用户
-     *
-     * @param request
-     * @return
-     */
-    User getLoginUser(HttpServletRequest request);
+
 
     /**
      * 是否为管理员
@@ -71,12 +64,6 @@ public interface UserService extends IService<User> {
      */
     boolean userLogout(HttpServletRequest request);
 
-    /**
-     * 获取脱敏的已登录用户信息
-     *
-     * @return
-     */
-    LoginUserVO getLoginUserVO(User user);
 
     /**
      * 获取脱敏的用户信息
@@ -102,4 +89,5 @@ public interface UserService extends IService<User> {
      */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
+    String baseRefreshTokenGetToken(long id);
 }

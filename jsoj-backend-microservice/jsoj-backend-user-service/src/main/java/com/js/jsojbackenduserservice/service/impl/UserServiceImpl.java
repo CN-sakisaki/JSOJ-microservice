@@ -4,28 +4,34 @@ import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.js.jsojbackendcommon.common.ErrorCode;
-import com.js.jsojbackendcommon.constant.CommonConstant;
+import com.js.jsojbackendcommon.constant.JwtConstant;
+import com.js.jsojbackendcommon.constant.RedisConstant;
 import com.js.jsojbackendcommon.exception.BusinessException;
+import com.js.jsojbackendcommon.exception.ThrowUtils;
+import com.js.jsojbackendcommon.utils.JwtUtils;
 import com.js.jsojbackendcommon.utils.SqlUtils;
+import com.js.jsojbackendmodel.constant.CommonConstant;
 import com.js.jsojbackendmodel.dto.user.UserQueryRequest;
 import com.js.jsojbackendmodel.entity.User;
 import com.js.jsojbackendmodel.enums.UserRoleEnum;
-import com.js.jsojbackendmodel.vo.LoginUserVO;
 import com.js.jsojbackendmodel.vo.UserVO;
 import com.js.jsojbackenduserservice.mapper.UserMapper;
 import com.js.jsojbackenduserservice.service.UserService;
+import io.jsonwebtoken.Claims;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import static com.js.jsojbackendcommon.constant.UserConstant.USER_LOGIN_STATE;
+import static com.js.jsojbackendmodel.constant.UserConstant.USER_LOGIN_STATE;
 
 /**
  * 用户接口实现类
@@ -40,6 +46,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 盐值，混淆密码
      */
     public static final String SALT = "js";
+
+
+    private final StringRedisTemplate stringRedisTemplate;
+
+    public UserServiceImpl(StringRedisTemplate stringRedisTemplate) {
+        this.stringRedisTemplate = stringRedisTemplate;
+    }
 
     /**
      * 用户注册
@@ -92,11 +105,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      *
      * @param userAccount  用户账户
      * @param userPassword 用户密码
-     * @param request
      * @return LoginUserVO
      */
     @Override
-    public LoginUserVO userLogin(String userAccount, String userPassword, HttpServletRequest request) {
+    public UserVO userLogin(String userAccount, String userPassword) {
         // 1. 校验
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
@@ -115,37 +127,29 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.eq("userPassword", encryptPassword);
         User user = this.baseMapper.selectOne(queryWrapper);
         // 用户不存在
-        if (user == null) {
-            log.info("user login failed, userAccount cannot match userPassword");
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
-        }
-        // 3. 记录用户的登录态
-        request.getSession().setAttribute(USER_LOGIN_STATE, user);
-        return this.getLoginUserVO(user);
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR, "用户不存在");
+        // 生成 Token
+        String accessToken = JwtUtils.generateAccessToken(user.getId());
+        String refreshToken = JwtUtils.generateRefreshToken(user.getId());
+        stringRedisTemplate.opsForValue().set(RedisConstant.TOKEN + RedisConstant.ACCESS_TOKEN + user.getId(), accessToken, JwtConstant.ACCESS_TOKEN_EXPIRE, TimeUnit.MILLISECONDS);
+        stringRedisTemplate.opsForValue().set(RedisConstant.TOKEN + RedisConstant.REFRESH_TOKEN + user.getId(), refreshToken, JwtConstant.REFRESH_TOKEN_EXPIRE, TimeUnit.MILLISECONDS);
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user, userVO);
+        userVO.setToken(accessToken);
+        return userVO;
     }
 
-
-    /**
-     * 获取当前登录用户
-     *
-     * @param request
-     * @return
-     */
     @Override
-    public User getLoginUser(HttpServletRequest request) {
-        // 先判断是否已登录
-        Object userObj = request.getSession().getAttribute(USER_LOGIN_STATE);
-        User currentUser = (User) userObj;
-        if (currentUser == null || currentUser.getId() == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
-        // 从数据库查询（追求性能的话可以注释，直接走缓存）
-        long userId = currentUser.getId();
-        currentUser = this.getById(userId);
-        if (currentUser == null) {
-            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
-        }
-        return currentUser;
+    public String baseRefreshTokenGetToken(long id) {
+        String key = RedisConstant.TOKEN + RedisConstant.REFRESH_TOKEN + id;
+        String refreshToken = stringRedisTemplate.opsForValue().get(key);
+        ThrowUtils.throwIf(refreshToken == null, ErrorCode.NOT_FOUND_ERROR, "refreshToken不存在");
+        Claims claims = JwtUtils.parseToken(refreshToken);
+        long userId = (long) claims.get(String.valueOf(id));
+        User user = this.getById(userId);
+        String newToken = JwtUtils.generateAccessToken(user.getId());
+        stringRedisTemplate.opsForValue().set(RedisConstant.TOKEN + RedisConstant.ACCESS_TOKEN + user.getId(), newToken, JwtConstant.ACCESS_TOKEN_EXPIRE, TimeUnit.MILLISECONDS);
+        return newToken;
     }
 
     /**
@@ -188,20 +192,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         return true;
     }
 
-    /**
-     * 获取脱敏的已登录用户信息
-     *
-     * @return
-     */
-    @Override
-    public LoginUserVO getLoginUserVO(User user) {
-        if (user == null) {
-            return null;
-        }
-        LoginUserVO loginUserVO = new LoginUserVO();
-        BeanUtils.copyProperties(user, loginUserVO);
-        return loginUserVO;
-    }
 
     /**
      * 获取脱敏的用户信息
