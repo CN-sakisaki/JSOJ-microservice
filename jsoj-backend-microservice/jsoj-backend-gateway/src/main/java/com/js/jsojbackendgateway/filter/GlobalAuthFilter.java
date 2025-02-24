@@ -22,6 +22,7 @@ import java.util.List;
 
 /**
  * 网关过滤器
+ *
  * @author sakisaki
  * @date 2025/2/22 14:52
  */
@@ -32,33 +33,25 @@ public class GlobalAuthFilter implements GlobalFilter, Ordered {
 
     private final StringRedisTemplate stringRedisTemplate;
 
-
     private final List<String> whiteList = Arrays.asList(
             "/api/user/login",
             "/api/user/register",
-            "/swagger-ui/**",
-            "/api/user/v2/api-docs"
+            "/api/questionSubmit/v2/api-docs",
+            "/api/user/v2/api-docs",
+            "/api/question/v2/api-docs"
     );
 
     public GlobalAuthFilter(StringRedisTemplate stringRedisTemplate) {
         this.stringRedisTemplate = stringRedisTemplate;
     }
 
-    // @Override
-    // public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-    //     ServerHttpRequest request = exchange.getRequest();
-    //     ServerHttpResponse response = exchange.getResponse();
-    //     String path = request.getURI().getPath();
-    //     // 判断路径中是否包含inner,只允许内部调用
-    //     if (matcher.match("/**/inner/**", path)) {
-    //         response.setStatusCode(HttpStatus.FORBIDDEN);
-    //         DataBufferFactory dataBufferFactory = response.bufferFactory();
-    //         DataBuffer dataBuffer = dataBufferFactory.wrap(String.valueOf("无权限").getBytes(StandardCharsets.UTF_8));
-    //         return response.writeWith(Mono.just(dataBuffer));
-    //     }
-    //     return chain.filter(exchange);
-    // }
-
+    /**
+     * 请求过滤器
+     *
+     * @param exchange
+     * @param chain
+     * @return Mono<Void>
+     */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
@@ -93,12 +86,6 @@ public class GlobalAuthFilter implements GlobalFilter, Ordered {
                 return unauthorizedResponse(exchange, "Token 已失效");
             }
 
-            // 6. 权限校验（管理员才能访问 /api/admin/**）
-            // String role = JwtUtils.parseToken(token).get("role", String.class);
-            // if (path.startsWith("/api/admin") && !"admin".equals(role)) {
-            //     return unauthorizedResponse(exchange, "权限不足");
-            // }
-
             // 7. 传递用户信息到下游服务
             ServerHttpRequest newRequest = request.mutate()
                     .header("X-User-Id", userId)
@@ -113,6 +100,7 @@ public class GlobalAuthFilter implements GlobalFilter, Ordered {
 
     /**
      * 优先级最高
+     *
      * @return int
      */
     @Override
@@ -120,6 +108,12 @@ public class GlobalAuthFilter implements GlobalFilter, Ordered {
         return 0;
     }
 
+    /**
+     * 从请求头里获取token
+     *
+     * @param request 请求
+     * @return String类型的Token
+     */
     private String extractToken(ServerHttpRequest request) {
         String authHeader = request.getHeaders().getFirst("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -128,6 +122,13 @@ public class GlobalAuthFilter implements GlobalFilter, Ordered {
         return null;
     }
 
+    /**
+     * 无权限访问响应方法
+     *
+     * @param exchange
+     * @param message
+     * @return Mono<Void>
+     */
     private Mono<Void> unauthorizedResponse(ServerWebExchange exchange, String message) {
         ServerHttpResponse response = exchange.getResponse();
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
