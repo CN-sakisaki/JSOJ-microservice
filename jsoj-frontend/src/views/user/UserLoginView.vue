@@ -34,10 +34,11 @@
 
 <script setup lang="ts">
 import { reactive } from "vue";
-import { useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { UserControllerService, UserLoginRequest } from "../../../generated";
 import message from "@arco-design/web-vue/es/message";
+import { setToken } from "@/utils/cookie";
 
 /**
  * 表单信息
@@ -49,6 +50,7 @@ const form = reactive({
 
 const router = useRouter();
 const store = useStore();
+const route = useRoute();
 
 /**
  * 提交表单
@@ -56,17 +58,16 @@ const store = useStore();
 const handleSubmit = async () => {
   const res = await UserControllerService.userLoginUsingPost(form);
   if (res.code === 0) {
+    // 存储 Token 到 Cookie 和 Vuex
+    setToken(res.data.token);
+    store.commit("user/updateUser", res.data);
     await store.dispatch("getLoginUser");
-    // 登录成功跳转到主页
-    router.push({
-      path: "/",
-      replace: true,
-    });
-    // alert("登录成功，" + JSON.stringify(res.data));
+    // 3. 跳转到首页或重定向页
+    const redirect = route.query.redirect || "/";
+    router.push(redirect as string);
   } else {
     message.error("登录失败，" + res.message);
   }
-  // alert(JSON.stringify(form));
 };
 </script>
 <style>
