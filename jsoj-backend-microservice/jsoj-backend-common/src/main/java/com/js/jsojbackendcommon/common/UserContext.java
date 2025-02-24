@@ -5,6 +5,7 @@ import com.js.jsojbackendmodel.entity.User;
 
 /**
  * 上下文工具类
+ *
  * @author sakisaki
  * @date 2025/2/23 22:56
  */
@@ -14,6 +15,10 @@ public class UserContext {
     // 存储用户信息
     public static void setUser(User user) {
         userHolder.set(user);
+    }
+
+    public static User getUser() {
+        return userHolder.get();
     }
 
     // 清除上下文
