@@ -3,6 +3,11 @@ spring:
     name: jsoj-backend-gateway
   main:
     web-application-type: reactive
+  redis:
+    database: 1
+    port: 6379
+    host: localhost
+    password: JS285699
   # 注册到 nacos 服务
   cloud:
     nacos:

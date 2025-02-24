@@ -9,23 +9,18 @@ spring:
   mvc:
     path match:
       matching-strategy: ant_path_matcher
-  # session ??
-  session:
-    store-type: redis
-    # 30 ???
-  #     timeout: 2592000
   # ?????
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/jsoj
     username: root
-    password: 123456
+    password: JS285699
   # Redis ??
   redis:
     database: 1
     host: localhost
     port: 6379
-    timeout: 2592000
+    password: JS285699
   rabbitmq:
     host: localhost
     port: 5672

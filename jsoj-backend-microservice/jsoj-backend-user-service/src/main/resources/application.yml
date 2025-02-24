@@ -1,70 +1,83 @@
-# ??????
 spring:
+  # 应用程序的名称
   application:
     name: jsoj-backend-user-service
-  # ?? dev ??
+  # 激活的配置文件，使用 dev 环境的配置
   profiles:
     active: dev
-  # ?? swagger3
+  # Spring MVC 的配置
   mvc:
     path match:
+      # 路径匹配策略，使用 Ant 风格的路径匹配器
       matching-strategy: ant_path_matcher
-  # session ??
-  session:
-    store-type: redis
-    # 30 ???
-  #     timeout: 2592000
-  # ?????
+  # 数据源配置，用于连接数据库
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/jsoj
     username: root
-    password: 123456
-  # Redis ??
+    password: JS285699
+  # Redis 配置，用于缓存和存储数据
   redis:
     database: 1
     host: localhost
     port: 6379
+    password: JS285699
+    # Redis 操作的超时时间，单位为毫秒，这里设置为 30 天
     timeout: 2592000
-  #    password: 123456
-  # ????
+  # Servlet 配置
   servlet:
     multipart:
-      # ????
+      # 上传文件的最大大小限制，这里设置为 10MB
       max-file-size: 10MB
+
 server:
+  # 服务器绑定的地址，0.0.0.0 表示监听所有可用的网络接口
   address: 0.0.0.0
   port: 8102
   servlet:
+    # 应用程序的上下文路径，所有请求的前缀
     context-path: /api/user
-    # cookie 30 ???
     session:
       cookie:
+        # 会话 Cookie 的最大存活时间，单位为秒，这里设置为 30 天
         max-age: 2592000
+        # 会话 Cookie 的路径，指定 Cookie 生效的路径
         path: /api
-  # 注册到 nacos 服务
+  # Spring Cloud 相关配置
   cloud:
     nacos:
       discovery:
+        # Nacos 服务注册中心的地址，用于将服务注册到 Nacos
         server-addr: 127.0.0.1:8848
+
 mybatis-plus:
   configuration:
+    # 是否开启驼峰命名自动映射，这里设置为 false 表示不开启
     map-underscore-to-camel-case: false
+    # MyBatis 的日志实现，使用标准输出打印 SQL 日志
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
-      logic-delete-field: isDelete # ????????????
-      logic-delete-value: 1 # ?????????? 1?
-      logic-not-delete-value: 0 # ?????????? 0?
-# ????
+      # 逻辑删除字段名，用于实现逻辑删除功能
+      logic-delete-field: isDelete
+      # 逻辑删除的值，当该字段的值为 1 时表示记录已被逻辑删除
+      logic-delete-value: 1
+      # 逻辑未删除的值，当该字段的值为 0 时表示记录未被逻辑删除
+      logic-not-delete-value: 0
+
+# 腾讯云对象存储（COS）配置
 cos:
   client:
+    # COS 的访问密钥，用于身份验证
     accessKey: xxx
+    # COS 的秘密密钥，用于身份验证
     secretKey: xxx
+    # COS 存储桶所在的地域
     region: xxx
+    # COS 的存储桶名称
     bucket: xxx
-# ??????
+
+# Knife4j 配置，用于生成和展示 API 文档
 knife4j:
+  # 是否启用 Knife4j，设置为 true 表示启用
   enable: true
-codesandbox:
-  type: remote
