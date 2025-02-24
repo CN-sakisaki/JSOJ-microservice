@@ -5,6 +5,7 @@ import com.js.jsojbackendcommon.annotation.AuthCheck;
 import com.js.jsojbackendcommon.common.BaseResponse;
 import com.js.jsojbackendcommon.common.ErrorCode;
 import com.js.jsojbackendcommon.common.ResultUtils;
+import com.js.jsojbackendcommon.common.UserContext;
 import com.js.jsojbackendcommon.exception.BusinessException;
 import com.js.jsojbackendcommon.exception.ThrowUtils;
 import com.js.jsojbackendmodel.constant.UserConstant;
@@ -29,6 +30,7 @@ import static com.js.jsojbackenduserservice.service.impl.UserServiceImpl.SALT;
 
 /**
  * 用户相关控制层
+ *
  * @author sakisaki
  * @date 2025/2/22 14:59
  */
@@ -86,6 +88,7 @@ public class UserController {
 
     /**
      * 根据refreshToken刷新token
+     *
      * @param
      * @return
      */
@@ -105,9 +108,7 @@ public class UserController {
      */
     @PostMapping("/logout")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
-        if (request == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+        ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         boolean result = userService.userLogout(request);
         return ResultUtils.success(result);
     }
@@ -120,7 +121,12 @@ public class UserController {
      */
     @GetMapping("/get/login")
     public BaseResponse<UserVO> getLoginUser(HttpServletRequest request) {
-        return null;
+        ThrowUtils.throwIf(request == null, ErrorCode.OPERATION_ERROR);
+        User user = UserContext.getUser();
+        ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
+        UserVO userVO = new UserVO();
+        BeanUtils.copyProperties(user, userVO);
+        return ResultUtils.success(userVO);
     }
 
     // endregion
@@ -222,6 +228,7 @@ public class UserController {
 
     /**
      * 分页获取用户列表（仅管理员）
+     *
      * @param userQueryRequest
      * @return BaseResponse
      */
