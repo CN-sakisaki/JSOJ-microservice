@@ -12,6 +12,7 @@ import java.util.List;
 
 /**
  * 用户接口定义类
+ *
  * @author sakisaki
  * @date 2025/2/22 15:14
  */
@@ -32,12 +33,9 @@ public interface UserService extends IService<User> {
      *
      * @param userAccount  用户账户
      * @param userPassword 用户密码
-     * @param request
      * @return LoginUserVO
      */
     UserVO userLogin(String userAccount, String userPassword);
-
-
 
 
     /**
@@ -89,5 +87,11 @@ public interface UserService extends IService<User> {
      */
     QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest);
 
+    /**
+     * 根据refreshToken刷新token
+     *
+     * @param id 用户id
+     * @return String
+     */
     String baseRefreshTokenGetToken(long id);
 }

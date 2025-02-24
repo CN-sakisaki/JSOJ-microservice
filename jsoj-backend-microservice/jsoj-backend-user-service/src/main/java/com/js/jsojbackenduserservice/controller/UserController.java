@@ -52,6 +52,7 @@ public class UserController {
      * @return BaseResponse
      */
     @PostMapping("/register")
+    @ApiOperation(value = "用户注册")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         if (userRegisterRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -73,6 +74,7 @@ public class UserController {
      * @return BaseResponse
      */
     @PostMapping("/login")
+    @ApiOperation(value = "用户登录")
     public BaseResponse<UserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest) {
         if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -89,10 +91,11 @@ public class UserController {
     /**
      * 根据refreshToken刷新token
      *
-     * @param
-     * @return
+     * @param id 用户id
+     * @return BaseResponse
      */
     @GetMapping("/get/token")
+    @ApiOperation(value = "根据refreshToken刷新token")
     public BaseResponse<?> baseRefreshTokenGetToken(@RequestParam long id) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.OPERATION_ERROR);
         String newToken = userService.baseRefreshTokenGetToken(id);
@@ -107,6 +110,7 @@ public class UserController {
      * @return BaseResponse
      */
     @PostMapping("/logout")
+    @ApiOperation(value = "用户注销")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         boolean result = userService.userLogout(request);
@@ -116,12 +120,11 @@ public class UserController {
     /**
      * 获取当前登录用户
      *
-     * @param request
      * @return BaseResponse
      */
     @GetMapping("/get/login")
-    public BaseResponse<UserVO> getLoginUser(HttpServletRequest request) {
-        ThrowUtils.throwIf(request == null, ErrorCode.OPERATION_ERROR);
+    @ApiOperation(value = "获取当前登录用户")
+    public BaseResponse<UserVO> getLoginUser() {
         User user = UserContext.getUser();
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
         UserVO userVO = new UserVO();
@@ -137,12 +140,12 @@ public class UserController {
      * 创建用户（仅管理员）
      *
      * @param userAddRequest
-     * @param request
      * @return BaseResponse
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
+    @ApiOperation(value = "创建用户（仅管理员）")
+    public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest) {
         if (userAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -161,12 +164,12 @@ public class UserController {
      * 删除用户（仅管理员）
      *
      * @param deleteRequest
-     * @param request
      * @return BaseResponse
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
+    @ApiOperation(value = "删除用户（仅管理员）")
+    public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -178,14 +181,12 @@ public class UserController {
      * 更新用户（仅管理员）
      *
      * @param userUpdateRequest
-     * @param request
      * @return BaseResponse<Boolean>
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
     @ApiOperation(value = "更新用户（仅管理员）")
-    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
-                                            HttpServletRequest request) {
+    public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest) {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -204,10 +205,9 @@ public class UserController {
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @ApiOperation(value = "根据 id 获取用户（仅管理员）")
     public BaseResponse<User> getUserById(long id) {
-        if (id <= 0) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+        ThrowUtils.throwIf(id <= 0, ErrorCode.OPERATION_ERROR);
         User user = userService.getById(id);
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
         return ResultUtils.success(user);
@@ -220,6 +220,7 @@ public class UserController {
      * @return BaseResponse
      */
     @GetMapping("/get/vo")
+    @ApiOperation(value = "根据 id 获取包装类")
     public BaseResponse<UserVO> getUserVOById(long id) {
         BaseResponse<User> response = getUserById(id);
         User user = response.getData();
@@ -247,12 +248,11 @@ public class UserController {
      * 分页获取用户封装列表
      *
      * @param userQueryRequest
-     * @param request
      * @return BaseResponse
      */
     @PostMapping("/list/page/vo")
-    public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest,
-                                                       HttpServletRequest request) {
+    @ApiOperation(value = "分页获取用户封装列表")
+    public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest) {
         if (userQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
@@ -273,19 +273,14 @@ public class UserController {
      * 更新个人信息
      *
      * @param userUpdateMyRequest
-     * @param request
      * @return BaseResponse
      */
     @PostMapping("/update/my")
-    public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest,
-                                              HttpServletRequest request) {
-        if (userUpdateMyRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
-        // User loginUser = userService.getLoginUser(request);
-        User user = new User();
+    @ApiOperation(value = "更新个人信息")
+    public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest) {
+        ThrowUtils.throwIf(userUpdateMyRequest == null, ErrorCode.PARAMS_ERROR);
+        User user = UserContext.getUser();
         BeanUtils.copyProperties(userUpdateMyRequest, user);
-        // user.setId(loginUser.getId());
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
