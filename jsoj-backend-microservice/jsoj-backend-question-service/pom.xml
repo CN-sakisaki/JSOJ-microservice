@@ -29,6 +29,10 @@
     </properties>
     <dependencies>
         <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.js</groupId>
             <artifactId>jsoj-backend-common</artifactId>
             <version>0.0.1-SNAPSHOT</version>
@@ -64,6 +68,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.redisson</groupId>
+            <artifactId>redisson-spring-boot-starter</artifactId>
+            <version>3.23.4</version> <!-- 请使用最新版本 -->
         </dependency>
     </dependencies>
 
