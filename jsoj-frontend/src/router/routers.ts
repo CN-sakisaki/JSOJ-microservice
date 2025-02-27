@@ -9,6 +9,7 @@ import ManageQuestionView from "@/views/question/ManageQuestionView.vue";
 import QuestionView from "@/views/question/QuestionView.vue";
 import QuestionSubmitView from "@/views/question/QuestionSubmitView.vue";
 import ViewQuestionView from "@/views/question/ViewQuestionView.vue";
+import BasicLayout from "@/layouts/BasicLayout.vue";
 
 export const routes: Array<RouteRecordRaw> = [
   {
@@ -33,18 +34,33 @@ export const routes: Array<RouteRecordRaw> = [
   },
   {
     path: "/",
-    name: "主页",
-    component: QuestionView,
-  },
-  {
-    path: "/questions",
-    name: "浏览题目",
-    component: QuestionView,
-  },
-  {
-    path: "/questions_submit",
-    name: "题目提交",
-    component: QuestionSubmitView,
+    component: BasicLayout,
+    meta: { hideInMenu: true },
+    children: [
+      {
+        path: "/home",
+        name: "主页",
+        component: QuestionView,
+      },
+      {
+        path: "/questions",
+        name: "浏览题目",
+        component: QuestionView,
+      },
+      {
+        path: "/manage/question",
+        name: "管理题目",
+        component: ManageQuestionView,
+        meta: {
+          access: ACCESS_ENUM.ADMIN,
+        },
+      },
+      {
+        path: "/questions_submit",
+        name: "提交记录",
+        component: QuestionSubmitView,
+      },
+    ],
   },
   {
     path: "/add/question",
@@ -53,11 +69,6 @@ export const routes: Array<RouteRecordRaw> = [
     meta: {
       access: ACCESS_ENUM.ADMIN,
     },
-  },
-  {
-    path: "/manage/question",
-    name: "管理题目",
-    component: ManageQuestionView,
   },
   {
     path: "/view/question/:id",
@@ -86,29 +97,4 @@ export const routes: Array<RouteRecordRaw> = [
       hideInMenu: true,
     },
   },
-  // {
-  //   path: "/hide",
-  //   name: "隐藏页面",
-  //   component: HomeView,
-  //   meta: {
-  //     hideInMenu: true,
-  //   },
-  // },
-  // {
-  //   path: "/admin",
-  //   name: "管理员可见",
-  //   component: AdminView,
-  //   meta: {
-  //     access: ACCESS_ENUM.ADMIN,
-  //   },
-  // },
-  // {
-  //   path: "/about",
-  //   name: "关于我的",
-  //   // route level code-splitting
-  //   // this generates a separate chunk (about.[hash].js) for this route
-  //   // which is lazy-loaded when the route is visited.
-  //   component: () =>
-  //     import(/* webpackChunkName: "about" */ "../views/AboutView.vue"),
-  // },
 ];
