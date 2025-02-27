@@ -32,13 +32,11 @@ export default defineComponent({
 }
 
 #basicLayout .header {
-  margin-bottom: 16px;
   box-shadow: #eee 1px 1px 5px;
 }
 
 #basicLayout .content {
   background: linear-gradient(to right, #bbb, #fff);
-  margin-bottom: 16px;
   padding: 20px;
 }
 
