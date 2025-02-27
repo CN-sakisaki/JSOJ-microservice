@@ -1,14 +1,30 @@
 <template>
   <div id="userLayout">
-    <a-layout style="min-height: 100vh">
+    <a-layout style="min-height: 100vh; position: relative">
+      <!-- 背景视频 -->
+      <video
+        autoplay
+        loop
+        muted
+        class="background-video"
+        style="
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          position: absolute;
+          top: 0;
+          left: 0;
+          z-index: -1;
+        "
+      >
+        <source
+          src="https://gw.alipayobjects.com/v/huamei_gcee1x/afts/video/jXRBRK_VAwoAAAAAAAAAAAAAK4eUAQBr"
+          type="video/mp4"
+        />
+        你的浏览器不支持视频播放。
+      </video>
       <!--头部区域-->
-      <a-layout-header class="header">
-        <a-space>
-          <img src="../assets/cubic.png" class="logo" />
-          <div>Cubic OJ</div>
-        </a-space>
-        <!--<GlobalHeader />-->
-      </a-layout-header>
+      <a-layout-header class="header"></a-layout-header>
       <!--内容展示区-->
       <a-layout-content class="content">
         <router-view />
@@ -24,7 +40,6 @@
 </template>
 <script>
 import { defineComponent } from "vue";
-import GlobalHeader from "@/components/GlobalHeader.vue";
 
 export default defineComponent({
   components: {},
@@ -36,11 +51,6 @@ export default defineComponent({
   text-align: center;
 }
 
-#userLayout .logo {
-  width: 64px;
-  height: 64px;
-}
-
 #userLayout .header {
   margin-top: 16px;
 }
@@ -49,6 +59,8 @@ export default defineComponent({
   margin-bottom: 16px;
   padding: 20px;
   min-height: 50vh;
+  position: relative;
+  z-index: 1;
 }
 
 #userLayout .footer {
@@ -59,5 +71,17 @@ export default defineComponent({
   left: 0;
   right: 0;
   text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.background-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: -1;
 }
 </style>
