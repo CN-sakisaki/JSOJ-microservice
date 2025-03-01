@@ -26,7 +26,7 @@ public interface UserService extends IService<User> {
      * @param checkPassword 校验密码
      * @return long
      */
-    long userRegister(String userAccount, String userPassword, String checkPassword);
+    long userRegister(String userAccount, String userPassword, String checkPassword, String userEmail);
 
     /**
      * 用户登录
@@ -36,15 +36,6 @@ public interface UserService extends IService<User> {
      * @return LoginUserVO
      */
     UserVO userLogin(String userAccount, String userPassword);
-
-
-    /**
-     * 是否为管理员
-     *
-     * @param request
-     * @return
-     */
-    boolean isAdmin(HttpServletRequest request);
 
     /**
      * 是否为管理员

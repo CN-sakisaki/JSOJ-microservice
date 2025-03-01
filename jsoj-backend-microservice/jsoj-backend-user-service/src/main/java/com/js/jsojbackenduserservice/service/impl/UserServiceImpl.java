@@ -63,12 +63,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * @return long
      */
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword) {
+    public long userRegister(String userAccount, String userPassword, String checkPassword, String userEmail) {
         // 1. 校验
         ThrowUtils.throwIf(StringUtils.isAnyBlank(userAccount, userPassword, checkPassword), ErrorCode.PARAMS_ERROR, "参数为空");
         ThrowUtils.throwIf(userAccount.length() < 8, ErrorCode.PARAMS_ERROR, "用户账号过短");
         ThrowUtils.throwIf(userPassword.length() < 8 || checkPassword.length() < 8, ErrorCode.PARAMS_ERROR, "用户密码过短");
         ThrowUtils.throwIf(!userPassword.equals(checkPassword), ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
+        if (userEmail != null) {
+            ThrowUtils.throwIf(emailPattern(userEmail), ErrorCode.PARAMS_ERROR);
+        }
         synchronized (userAccount.intern()) {
             // 账户不能重复
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -81,12 +84,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
             // 3. 插入数据
             User user = new User();
+            user.setUserEmail(userEmail);
             user.setUserAccount(userAccount);
             user.setUserPassword(encryptPassword);
             boolean saveResult = this.save(user);
-            if (!saveResult) {
-                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
-            }
+            ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "注册失败,系统错误");
             return user.getId();
         }
     }
@@ -102,7 +104,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public UserVO userLogin(String userAccount, String userPassword) {
         // 1. 校验
         ThrowUtils.throwIf(StringUtils.isAnyBlank(userAccount, userPassword), ErrorCode.PARAMS_ERROR, "参数为空");
-        ThrowUtils.throwIf(userAccount.length() < 8, ErrorCode.PARAMS_ERROR, "账号错误");
+        ThrowUtils.throwIf(userAccount.length() < 4, ErrorCode.PARAMS_ERROR, "账号错误");
         ThrowUtils.throwIf(userPassword.length() < 8, ErrorCode.PARAMS_ERROR, "密码错误");
         // 2. 加密
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
@@ -135,19 +137,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String newToken = JwtUtils.generateAccessToken(user.getId());
         stringRedisTemplate.opsForValue().set(RedisConstant.TOKEN + RedisConstant.ACCESS_TOKEN + user.getId(), newToken, JwtConstant.ACCESS_TOKEN_EXPIRE, TimeUnit.MILLISECONDS);
         return newToken;
-    }
-
-    /**
-     * 是否为管理员
-     *
-     * @param request
-     * @return
-     */
-    @Override
-    public boolean isAdmin(HttpServletRequest request) {
-        // 仅管理员可查询
-        User user = UserContext.getUser();
-        return isAdmin(user);
     }
 
     /**
@@ -222,6 +211,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String unionId = userQueryRequest.getUnionId();
         String mpOpenId = userQueryRequest.getMpOpenId();
         String userName = userQueryRequest.getUserName();
+        String userEmail = userQueryRequest.getUserEmail();
+        String userPhone = userQueryRequest.getUserPhone();
         String userProfile = userQueryRequest.getUserProfile();
         String userRole = userQueryRequest.getUserRole();
         String sortField = userQueryRequest.getSortField();
@@ -231,10 +222,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.eq(StringUtils.isNotBlank(unionId), "unionId", unionId);
         queryWrapper.eq(StringUtils.isNotBlank(mpOpenId), "mpOpenId", mpOpenId);
         queryWrapper.eq(StringUtils.isNotBlank(userRole), "userRole", userRole);
+        queryWrapper.eq(StringUtils.isNotBlank(userEmail), "userEmail", userEmail);
+        queryWrapper.eq(StringUtils.isNotBlank(userPhone), "userPhone", userPhone);
+        queryWrapper.eq(StringUtils.isNotBlank(userName), "userName", userName);
         queryWrapper.like(StringUtils.isNotBlank(userProfile), "userProfile", userProfile);
-        queryWrapper.like(StringUtils.isNotBlank(userName), "userName", userName);
         queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
                 sortField);
         return queryWrapper;
+    }
+
+    /**
+     * 验证用户邮箱
+     * @param userEmail
+     * @return boolean
+     */
+    private boolean emailPattern(String userEmail) {
+        String pattern = "^[a-zA-Z0-9_+&*-]+(?:\\\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\\\.)+[a-zA-Z]{2,7}$";
+        return pattern.equals(userEmail);
     }
 }

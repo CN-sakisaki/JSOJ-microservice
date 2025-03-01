@@ -35,9 +35,10 @@ public class UserInfoAspect {
         this.userFeignClient = userFeignClient;
     }
 
-    // 定义切入点：拦截所有 Controller 层的请求处理方法
+    // 定义切入点
     @Pointcut("execution(* com.js.jsojbackenduserservice.controller..*.*(..))" +
-            "&& !within(com.js.jsojbackenduserservice.controller.inner..*)")
+            "&& !within(com.js.jsojbackenduserservice.controller.inner..*)"
+            + "&& !@annotation(com.js.jsojbackendcommon.annotation.ExcludeMethod)")
     public void controllerMethods() {
     }
 

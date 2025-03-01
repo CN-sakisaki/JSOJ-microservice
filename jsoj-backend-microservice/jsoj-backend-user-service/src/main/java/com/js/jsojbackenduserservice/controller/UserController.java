@@ -2,6 +2,7 @@ package com.js.jsojbackenduserservice.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.js.jsojbackendcommon.annotation.AuthCheck;
+import com.js.jsojbackendcommon.annotation.ExcludeMethod;
 import com.js.jsojbackendcommon.common.BaseResponse;
 import com.js.jsojbackendcommon.common.ErrorCode;
 import com.js.jsojbackendcommon.common.ResultUtils;
@@ -14,7 +15,9 @@ import com.js.jsojbackendmodel.entity.User;
 import com.js.jsojbackendmodel.request.DeleteRequest;
 import com.js.jsojbackendmodel.vo.UserVO;
 import com.js.jsojbackenduserservice.service.UserService;
-import io.swagger.annotations.ApiOperation;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -37,13 +40,12 @@ import static com.js.jsojbackenduserservice.service.impl.UserServiceImpl.SALT;
 @RestController
 @RequestMapping("/")
 @Slf4j
+@Tag(name = "用户相关接口")
 public class UserController {
 
     @Resource
     private UserService userService;
 
-
-    // region 登录相关
 
     /**
      * 用户注册
@@ -51,8 +53,10 @@ public class UserController {
      * @param userRegisterRequest
      * @return BaseResponse
      */
+    @Operation(summary = "用户注册")
+    @ApiResponse(responseCode = "200", description = "成功注册")
     @PostMapping("/register")
-    @ApiOperation(value = "用户注册")
+    @ExcludeMethod
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         if (userRegisterRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -60,12 +64,13 @@ public class UserController {
         String userAccount = userRegisterRequest.getUserAccount();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
-            return null;
-        }
-        long result = userService.userRegister(userAccount, userPassword, checkPassword);
+        String userEmail = userRegisterRequest.getUserEmail();
+        ThrowUtils.throwIf(StringUtils.isAnyBlank(userAccount, userPassword, checkPassword), ErrorCode.PARAMS_ERROR, "缺少必要参数");
+        long result = userService.userRegister(userAccount, userPassword, checkPassword, userEmail);
         return ResultUtils.success(result);
     }
+
+    // region 登录相关
 
     /**
      * 用户登录
@@ -73,17 +78,14 @@ public class UserController {
      * @param userLoginRequest
      * @return BaseResponse
      */
+    @Operation(summary = "用户登录")
+    @ApiResponse(responseCode = "200", description = "成功登录")
     @PostMapping("/login")
-    @ApiOperation(value = "用户登录")
+    @ExcludeMethod
     public BaseResponse<UserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest) {
-        if (userLoginRequest == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
-        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
-        }
+        ThrowUtils.throwIf(StringUtils.isAnyBlank(userAccount, userPassword), ErrorCode.PARAMS_ERROR);
         UserVO userVO = userService.userLogin(userAccount, userPassword);
         return ResultUtils.success(userVO);
     }
@@ -94,8 +96,9 @@ public class UserController {
      * @param id 用户id
      * @return BaseResponse
      */
+    @Operation(summary = "根据refreshToken刷新token")
+    @ApiResponse(responseCode = "200", description = "成功刷新")
     @GetMapping("/get/token")
-    @ApiOperation(value = "根据refreshToken刷新token")
     public BaseResponse<?> baseRefreshTokenGetToken(@RequestParam long id) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.OPERATION_ERROR);
         String newToken = userService.baseRefreshTokenGetToken(id);
@@ -109,8 +112,9 @@ public class UserController {
      * @param request
      * @return BaseResponse
      */
+    @Operation(summary = "用户注销")
+    @ApiResponse(responseCode = "200", description = "成功注销")
     @PostMapping("/logout")
-    @ApiOperation(value = "用户注销")
     public BaseResponse<Boolean> userLogout(HttpServletRequest request) {
         ThrowUtils.throwIf(request == null, ErrorCode.PARAMS_ERROR);
         boolean result = userService.userLogout(request);
@@ -122,8 +126,9 @@ public class UserController {
      *
      * @return BaseResponse
      */
+    @Operation(summary = "获取当前登录用户")
+    @ApiResponse(responseCode = "200", description = "成功获取当前登录用户")
     @GetMapping("/get/login")
-    @ApiOperation(value = "获取当前登录用户")
     public BaseResponse<UserVO> getLoginUser() {
         User user = UserContext.getUser();
         ThrowUtils.throwIf(user == null, ErrorCode.NOT_FOUND_ERROR);
@@ -144,7 +149,6 @@ public class UserController {
      */
     @PostMapping("/add")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "创建用户（仅管理员）")
     public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest) {
         if (userAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -168,7 +172,6 @@ public class UserController {
      */
     @PostMapping("/delete")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "删除用户（仅管理员）")
     public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest) {
         if (deleteRequest == null || deleteRequest.getId() <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -185,7 +188,6 @@ public class UserController {
      */
     @PostMapping("/update")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "更新用户（仅管理员）")
     public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest) {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -205,7 +207,6 @@ public class UserController {
      */
     @GetMapping("/get")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "根据 id 获取用户（仅管理员）")
     public BaseResponse<User> getUserById(long id) {
         ThrowUtils.throwIf(id <= 0, ErrorCode.OPERATION_ERROR);
         User user = userService.getById(id);
@@ -220,7 +221,6 @@ public class UserController {
      * @return BaseResponse
      */
     @GetMapping("/get/vo")
-    @ApiOperation(value = "根据 id 获取包装类")
     public BaseResponse<UserVO> getUserVOById(long id) {
         BaseResponse<User> response = getUserById(id);
         User user = response.getData();
@@ -235,7 +235,6 @@ public class UserController {
      */
     @PostMapping("/list/page")
     @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    @ApiOperation(value = "分页获取用户列表（仅管理员）")
     public BaseResponse<Page<User>> listUserByPage(@RequestBody UserQueryRequest userQueryRequest) {
         long current = userQueryRequest.getCurrent();
         long size = userQueryRequest.getPageSize();
@@ -251,7 +250,6 @@ public class UserController {
      * @return BaseResponse
      */
     @PostMapping("/list/page/vo")
-    @ApiOperation(value = "分页获取用户封装列表")
     public BaseResponse<Page<UserVO>> listUserVOByPage(@RequestBody UserQueryRequest userQueryRequest) {
         if (userQueryRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -276,7 +274,6 @@ public class UserController {
      * @return BaseResponse
      */
     @PostMapping("/update/my")
-    @ApiOperation(value = "更新个人信息")
     public BaseResponse<Boolean> updateMyUser(@RequestBody UserUpdateMyRequest userUpdateMyRequest) {
         ThrowUtils.throwIf(userUpdateMyRequest == null, ErrorCode.PARAMS_ERROR);
         User user = UserContext.getUser();

@@ -5,7 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 /**
- * 用户登录请求
+ * 添加用户请求
  *
  * @author sakisaki
  * @date 2025/2/22 19:10
