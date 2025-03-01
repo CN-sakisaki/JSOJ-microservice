@@ -41,7 +41,6 @@ spring:
 server:
   port: 8101
 knife4j:
-  enabled: true
   gateway:
     # ① 第一个配置，开启gateway聚合组件
     enabled: true
