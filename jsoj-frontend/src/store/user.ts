@@ -1,8 +1,7 @@
 import { StoreOptions } from "vuex";
-import { UserControllerService } from "../../generated";
-import { getToken, removeToken } from "@/utils/cookie";
+import { getToken } from "@/utils/cookie";
 import ACCESS_ENUM from "@/access/accessEnum";
-import router from "@/router";
+import { Service } from "@/userService";
 
 export default {
   namespaced: true,
@@ -31,53 +30,13 @@ export default {
   actions: {
     async getLoginUser({ commit }) {
       try {
-        const res = await UserControllerService.getLoginUserUsingGet();
-        if (res.code === 0) {
+        const res = await Service.getLoginUser();
+        if (res.code === 200) {
           commit("updateUser", res.data);
         }
       } catch (error) {
         commit("clearUser");
       }
     },
-    // // Vuex action
-    async logout({ commit }) {
-      try {
-        await UserControllerService.userLogoutUsingPost();
-      } finally {
-        commit("clearUser");
-        removeToken();
-        router.push("/login");
-      }
-    },
   },
 } as StoreOptions<any>;
-
-// export default {
-//   // 使用命名空间
-//   namespace: true,
-//   state: () => ({
-//     loginUser: {
-//       userName: "未登录",
-//     },
-//   }),
-//   actions: {
-//     async getLoginUser({ commit, state }, payload) {
-//       // 从远程获取登录信息;
-//       const res = await UserControllerService.getLoginUserUsingGet();
-//       if (res.code === 0) {
-//         commit("updateUser", res.data);
-//         console.log("从远程获取的登录信息为：", res.data);
-//       } else {
-//         commit("updateUser", {
-//           ...state.loginUser,
-//           userRole: ACCESS_ENUM.NOT_LOGIN,
-//         });
-//       }
-//     },
-//   },
-//   mutations: {
-//     updateUser(state, payload) {
-//       state.loginUser = payload;
-//     },
-//   },
-// } as StoreOptions<any>;

@@ -6,7 +6,7 @@ const TOKEN_KEY = "access_token";
 // 设置 Token 到 Cookie
 export const setToken = (token: string) => {
   Cookies.set(TOKEN_KEY, token, {
-    expires: 1, // 1天过期（根据实际需求调整）
+    expires: 1, // 1天过期
     secure: process.env.NODE_ENV === "production",
     sameSite: "Lax", // 允许安全跨站请求
   });

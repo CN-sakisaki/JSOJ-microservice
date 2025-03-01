@@ -20,15 +20,15 @@
         </a-select>
       </a-form-item>
       <a-form-item>
-        <a-button type="outline" shape="round" status="normal" @click="doSubmit"
+        <a-button shape="round" status="normal" type="outline" @click="doSubmit"
           >搜索
         </a-button>
       </a-form-item>
       <a-form-item>
         <a-button
-          type="primary"
           shape="round"
           status="success"
+          type="primary"
           @click="loadData"
           >刷新
         </a-button>
@@ -36,8 +36,6 @@
     </a-form>
     <a-divider size="0" />
     <a-table
-      column-resizable
-      wrapper
       :ref="tableRef"
       :columns="columns"
       :data="dataList"
@@ -49,16 +47,18 @@
         showJumper: true,
         showPageSize: true,
       }"
-      @page-change="onPageChange"
+      column-resizable
+      wrapper
       @pageSizeChange="onPageSizeChange"
+      @page-change="onPageChange"
     >
       <template #judgeInfo="{ record }">
         <a-space wrap>
           <a-tag
-            size="medium"
             v-for="(info, index) of record.judgeInfo"
             :key="index"
             color="orange"
+            size="medium"
           >
             {{
               `${
@@ -92,130 +92,125 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { onMounted, ref, watchEffect } from "vue";
-import message from "@arco-design/web-vue/es/message";
-import { useRouter } from "vue-router";
-import {
-  Question,
-  QuestionControllerService,
-  QuestionSubmitQueryRequest,
-} from "../../../generated";
-import moment from "moment";
+<!--<script lang="ts" setup>-->
+<!--import { ref } from "vue";-->
+<!--import message from "@arco-design/web-vue/es/message";-->
+<!--import { useRouter } from "vue-router";-->
+<!--import moment from "moment";-->
 
-const tableRef = ref();
-const dataList = ref([]);
-const total = ref(0);
-const searchParams = ref<QuestionSubmitQueryRequest>({
-  title: "",
-  tags: [],
-  pageSize: 10,
-  current: 1,
-});
+<!--const tableRef = ref();-->
+<!--const dataList = ref([]);-->
+<!--const total = ref(0);-->
+<!--// const searchParams = ref<QuestionSubmitQueryRequest>({-->
+<!--//   title: "",-->
+<!--//   tags: [],-->
+<!--//   pageSize: 10,-->
+<!--//   current: 1,-->
+<!--// });-->
 
-const loadData = async () => {
-  const res = await QuestionControllerService.listQuestionSubmitByPageUsingPost(
-    searchParams.value
-  );
-  if (res.code === 0) {
-    dataList.value = res.data.records;
-    total.value = res.data.total;
-  } else {
-    message.error("加载失败，" + res.message);
-  }
-};
+<!--// const loadData = async () => {-->
+<!--//   const res = await QuestionControllerService.listQuestionSubmitByPageUsingPost(-->
+<!--//     searchParams.value-->
+<!--//   );-->
+<!--//   if (res.code === 0) {-->
+<!--//     dataList.value = res.data.records;-->
+<!--//     total.value = res.data.total;-->
+<!--//   } else {-->
+<!--//     message.error("加载失败，" + res.message);-->
+<!--//   }-->
+<!--// };-->
 
-/**
- * 监听 searchParams 变量，改变时触发页面的重新加载
- */
-watchEffect(() => {
-  loadData();
-});
+<!--// /**-->
+<!--//  * 监听 searchParams 变量，改变时触发页面的重新加载-->
+<!--//  */-->
+<!--// watchEffect(() => {-->
+<!--//   loadData();-->
+<!--// });-->
+<!--//-->
+<!--// /**-->
+<!--//  * 页面加载时，请求数据-->
+<!--//  */-->
+<!--// onMounted(() => {-->
+<!--//   loadData();-->
+<!--// });-->
 
-/**
- * 页面加载时，请求数据
- */
-onMounted(() => {
-  loadData();
-});
+<!--const columns = [-->
+<!--  {-->
+<!--    title: "提交号",-->
+<!--    dataIndex: "id",-->
+<!--    align: "center",-->
+<!--  },-->
+<!--  {-->
+<!--    title: "题号",-->
+<!--    dataIndex: "questionId",-->
+<!--    align: "center",-->
+<!--  },-->
+<!--  {-->
+<!--    title: "提交者",-->
+<!--    dataIndex: "userId",-->
+<!--    align: "center",-->
+<!--  },-->
+<!--  {-->
+<!--    title: "判题信息",-->
+<!--    slotName: "judgeInfo",-->
+<!--    align: "center",-->
+<!--  },-->
+<!--  {-->
+<!--    title: "编程语言",-->
+<!--    dataIndex: "language",-->
+<!--    align: "center",-->
+<!--  },-->
+<!--  {-->
+<!--    title: "提交状态",-->
+<!--    slotName: "status",-->
+<!--    align: "center",-->
+<!--  },-->
+<!--  {-->
+<!--    title: "创建时间",-->
+<!--    slotName: "createTime",-->
+<!--    align: "center",-->
+<!--  },-->
+<!--];-->
 
-const columns = [
-  {
-    title: "提交号",
-    dataIndex: "id",
-    align: "center",
-  },
-  {
-    title: "题号",
-    dataIndex: "questionId",
-    align: "center",
-  },
-  {
-    title: "提交者",
-    dataIndex: "userId",
-    align: "center",
-  },
-  {
-    title: "判题信息",
-    slotName: "judgeInfo",
-    align: "center",
-  },
-  {
-    title: "编程语言",
-    dataIndex: "language",
-    align: "center",
-  },
-  {
-    title: "提交状态",
-    slotName: "status",
-    align: "center",
-  },
-  {
-    title: "创建时间",
-    slotName: "createTime",
-    align: "center",
-  },
-];
+<!--// const onPageChange = (page: number) => {-->
+<!--//   searchParams.value = {-->
+<!--//     ...searchParams.value,-->
+<!--//     current: page,-->
+<!--//   };-->
+<!--// };-->
+<!--//-->
+<!--// /**-->
+<!--//  * 分页大小-->
+<!--//  * @param size-->
+<!--//  */-->
+<!--// const onPageSizeChange = (size: number) => {-->
+<!--//   searchParams.value = {-->
+<!--//     ...searchParams.value,-->
+<!--//     pageSize: size,-->
+<!--//   };-->
+<!--// };-->
 
-const onPageChange = (page: number) => {
-  searchParams.value = {
-    ...searchParams.value,
-    current: page,
-  };
-};
+<!--const router = useRouter();-->
 
-/**
- * 分页大小
- * @param size
- */
-const onPageSizeChange = (size: number) => {
-  searchParams.value = {
-    ...searchParams.value,
-    pageSize: size,
-  };
-};
-
-const router = useRouter();
-
-/**
- * 跳转到做题页面
- * @param question
- */
-const toQuestionPage = (question: Question) => {
-  router.push({
-    path: `/view/question/${question.id}`,
-  });
-};
-/*
- * 确认搜索,重新加载数据
- * */
-const doSubmit = () => {
-  searchParams.value = {
-    ...searchParams.value,
-    current: 1,
-  };
-};
-</script>
+<!--// /**-->
+<!--//  * 跳转到做题页面-->
+<!--//  * @param question-->
+<!--//  */-->
+<!--// const toQuestionPage = (question: Question) => {-->
+<!--//   router.push({-->
+<!--//     path: `/view/question/${question.id}`,-->
+<!--//   });-->
+<!--// };-->
+<!--// /*-->
+<!--//  * 确认搜索,重新加载数据-->
+<!--//  * */-->
+<!--// const doSubmit = () => {-->
+<!--//   searchParams.value = {-->
+<!--//     ...searchParams.value,-->
+<!--//     current: 1,-->
+<!--//   };-->
+<!--// };-->
+<!--</script>-->
 
 <style scoped>
 #questionSubmitView {

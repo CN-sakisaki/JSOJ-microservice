@@ -1,7 +1,7 @@
 <template>
   <div id="questionView">
     <!--搜索区域-->
-    <a-form :model="searchParams" :layout="'inline'">
+    <a-form :layout="'inline'" :model="searchParams">
       <a-form-item field="title" label="名称" style="min-width: 240px">
         <a-input v-model="searchParams.title" placeholder="请输入名称..." />
       </a-form-item>
@@ -63,125 +63,119 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { onMounted, ref, watchEffect } from "vue";
-import message from "@arco-design/web-vue/es/message";
-import { useRouter } from "vue-router";
-import {
-  Question,
-  QuestionControllerService,
-  QuestionQueryRequest,
-} from "../../../generated";
-import moment from "moment";
+<!--<script lang="ts" setup>-->
+<!--import { ref } from "vue";-->
 
-const tableRef = ref();
-const dataList = ref([]);
-const total = ref(0);
-const searchParams = ref<QuestionQueryRequest>({
-  title: "",
-  tags: [],
-  pageSize: 10,
-  current: 1,
-});
-const colors = [
-  "arcoblue",
-  "pinkpurple",
-  "lime",
-  "purple",
-  "blue",
-  "cyan",
-  "gold",
-  "orange",
-  "green",
-  "magenta",
-  "gray",
-];
+<!--import moment from "moment";-->
 
-const loadData = async () => {
-  const res = await QuestionControllerService.listQuestionVoByPageUsingPost(
-    searchParams.value
-  );
-  if (res.code === 0) {
-    dataList.value = res.data.records;
-    total.value = res.data.total;
-  } else {
-    message.error("加载失败，" + res.message);
-  }
-};
+<!--const tableRef = ref();-->
+<!--const dataList = ref([]);-->
+<!--const total = ref(0);-->
+<!--// const searchParams = ref<QuestionQueryRequest>({-->
+<!--//   title: "",-->
+<!--//   tags: [],-->
+<!--//   pageSize: 10,-->
+<!--//   current: 1,-->
+<!--// });-->
+<!--const colors = [-->
+<!--  "arcoblue",-->
+<!--  "pinkpurple",-->
+<!--  "lime",-->
+<!--  "purple",-->
+<!--  "blue",-->
+<!--  "cyan",-->
+<!--  "gold",-->
+<!--  "orange",-->
+<!--  "green",-->
+<!--  "magenta",-->
+<!--  "gray",-->
+<!--];-->
 
-/**
- * 监听 searchParams 变量，改变时触发页面的重新加载
- */
-watchEffect(() => {
-  loadData();
-});
+<!--// const loadData = async () => {-->
+<!--//   const res = await QuestionControllerService.listQuestionVoByPageUsingPost(-->
+<!--//     searchParams.value-->
+<!--//   );-->
+<!--//   if (res.code === 0) {-->
+<!--//     dataList.value = res.data.records;-->
+<!--//     total.value = res.data.total;-->
+<!--//   } else {-->
+<!--//     message.error("加载失败，" + res.message);-->
+<!--//   }-->
+<!--// };-->
 
-/**
- * 页面加载时，请求数据
- */
-onMounted(() => {
-  loadData();
-});
+<!--// /**-->
+<!--//  * 监听 searchParams 变量，改变时触发页面的重新加载-->
+<!--//  */-->
+<!--// watchEffect(() => {-->
+<!--//   loadData();-->
+<!--// });-->
+<!--//-->
+<!--// /**-->
+<!--//  * 页面加载时，请求数据-->
+<!--//  */-->
+<!--// onMounted(() => {-->
+<!--//   loadData();-->
+<!--// });-->
 
-const columns = [
-  {
-    title: "题号",
-    dataIndex: "id",
-    align: "center",
-  },
-  {
-    title: "题目名称",
-    dataIndex: "title",
-    align: "center",
-  },
-  {
-    title: "题目标签",
-    slotName: "tags",
-  },
-  {
-    title: "通过率",
-    slotName: "acceptedRate",
-  },
-  {
-    title: "创建时间",
-    slotName: "createTime",
-    align: "center",
-  },
-  {
-    title: "操作",
-    slotName: "optional",
-    align: "center",
-  },
-];
+<!--const columns = [-->
+<!--  {-->
+<!--    title: "题号",-->
+<!--    dataIndex: "id",-->
+<!--    align: "center",-->
+<!--  },-->
+<!--  {-->
+<!--    title: "题目名称",-->
+<!--    dataIndex: "title",-->
+<!--    align: "center",-->
+<!--  },-->
+<!--  {-->
+<!--    title: "题目标签",-->
+<!--    slotName: "tags",-->
+<!--  },-->
+<!--  {-->
+<!--    title: "通过率",-->
+<!--    slotName: "acceptedRate",-->
+<!--  },-->
+<!--  {-->
+<!--    title: "创建时间",-->
+<!--    slotName: "createTime",-->
+<!--    align: "center",-->
+<!--  },-->
+<!--  {-->
+<!--    title: "操作",-->
+<!--    slotName: "optional",-->
+<!--    align: "center",-->
+<!--  },-->
+<!--];-->
 
-const onPageChange = (page: number) => {
-  searchParams.value = {
-    ...searchParams.value,
-    current: page,
-  };
-};
+<!--// const onPageChange = (page: number) => {-->
+<!--//   searchParams.value = {-->
+<!--//     ...searchParams.value,-->
+<!--//     current: page,-->
+<!--//   };-->
+<!--// };-->
 
-const router = useRouter();
+<!--// const router = useRouter();-->
 
-/**
- * 跳转到做题页面
- * @param question
- */
-const toQuestionPage = (question: Question) => {
-  router.push({
-    path: `/view/question/${question.id}`,
-  });
-};
-/*
- * 确认搜索,重新加载数据
- * */
-const doSubmit = () => {
-  searchParams.value = {
-    ...searchParams.value,
-    current: 1,
-  };
-};
-</script>
+<!--// /**-->
+<!--//  * 跳转到做题页面-->
+<!--//  * @param question-->
+<!--//  */-->
+<!--// const toQuestionPage = (question: Question) => {-->
+<!--//   router.push({-->
+<!--//     path: `/view/question/${question.id}`,-->
+<!--//   });-->
+<!--// };-->
+<!--// /*-->
+<!--//  * 确认搜索,重新加载数据-->
+<!--//  * */-->
+<!--// const doSubmit = () => {-->
+<!--//   searchParams.value = {-->
+<!--//     ...searchParams.value,-->
+<!--//     current: 1,-->
+<!--//   };-->
+<!--// };-->
+<!--</script>-->
 
 <style scoped>
 #questionView {

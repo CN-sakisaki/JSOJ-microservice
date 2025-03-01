@@ -5,7 +5,7 @@ spring:
   # 激活的配置文件，使用 dev 环境的配置
   profiles:
     active: dev
-  # Spring MVC 的配置
+    # Spring MVC 的配置
   mvc:
     path match:
       # 路径匹配策略，使用 Ant 风格的路径匹配器

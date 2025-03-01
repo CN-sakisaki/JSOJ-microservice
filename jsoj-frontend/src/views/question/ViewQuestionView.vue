@@ -9,8 +9,8 @@
               <MdViewer :value="question.content || ''" />
               <!--判题条件展示区域-->
               <a-descriptions
-                title="判题条件"
                 :column="{ xs: 1, md: 2, lg: 3 }"
+                title="判题条件"
               >
                 <a-descriptions-item label="时间限制（ms）：">
                   {{ question.judgeConfig.timeLimit ?? 0 }}
@@ -35,7 +35,7 @@
               </template>
             </a-card>
           </a-tab-pane>
-          <a-tab-pane key="comment" title="评论" disabled> 评论区</a-tab-pane>
+          <a-tab-pane key="comment" disabled title="评论"> 评论区</a-tab-pane>
           <a-tab-pane key="answer" title="答案"> 提交后方可查看答案</a-tab-pane>
         </a-tabs>
       </a-col>
@@ -57,16 +57,16 @@
           </a-form-item>
         </a-form>
         <CodeEditor
+          :handle-change="changeCode"
           :language="form.language"
           :value="form.code"
-          :handle-change="changeCode"
         />
         <a-divider size="0" />
         <a-button
           shape="round"
-          type="primary"
-          style="min-width: 200px; margin-left: 280px"
           size="large"
+          style="min-width: 200px; margin-left: 280px"
+          type="primary"
           @click="doSubmit"
         >
           提交代码
@@ -76,101 +76,95 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import { defineProps, onMounted, ref, withDefaults } from "vue";
-import {
-  QuestionControllerService,
-  QuestionSubmitAddRequest,
-  QuestionVO,
-} from "../../../generated";
-import message from "@arco-design/web-vue/es/message";
-import CodeEditor from "@/components/CodeEditor.vue";
-import MdViewer from "@/components/MdViewer.vue";
+<!--<script lang="ts" setup>-->
+<!--import { defineProps, ref, withDefaults } from "vue";-->
+<!--import CodeEditor from "@/components/CodeEditor.vue";-->
+<!--import MdViewer from "@/components/MdViewer.vue";-->
 
-interface Props {
-  id: string;
-}
+<!--interface Props {-->
+<!--  id: string;-->
+<!--}-->
 
-/**
- * 获取到动态路由 id
- */
-const props = withDefaults(defineProps<Props>(), {
-  id: () => "",
-});
+<!--/**-->
+<!-- * 获取到动态路由 id-->
+<!-- */-->
+<!--const props = withDefaults(defineProps<Props>(), {-->
+<!--  id: () => "",-->
+<!--});-->
 
-const question = ref<QuestionVO>();
+<!--// const question = ref<QuestionVO>();-->
+<!--//-->
+<!--// const loadData = async () => {-->
+<!--//   const res = await QuestionControllerService.getQuestionVoByIdUsingGet(-->
+<!--//     props.id as any-->
+<!--//   );-->
+<!--//   if (res.code === 0) {-->
+<!--//     question.value = res.data;-->
+<!--//   } else {-->
+<!--//     message.error("加载失败，" + res.message);-->
+<!--//   }-->
+<!--// };-->
+<!--// 标签颜色-->
+<!--const colors = [-->
+<!--  "arcoblue",-->
+<!--  "pinkpurple",-->
+<!--  "lime",-->
+<!--  "purple",-->
+<!--  "blue",-->
+<!--  "cyan",-->
+<!--  "gold",-->
+<!--  "orange",-->
+<!--  "green",-->
+<!--  "magenta",-->
+<!--  "gray",-->
+<!--];-->
 
-const loadData = async () => {
-  const res = await QuestionControllerService.getQuestionVoByIdUsingGet(
-    props.id as any
-  );
-  if (res.code === 0) {
-    question.value = res.data;
-  } else {
-    message.error("加载失败，" + res.message);
-  }
-};
-// 标签颜色
-const colors = [
-  "arcoblue",
-  "pinkpurple",
-  "lime",
-  "purple",
-  "blue",
-  "cyan",
-  "gold",
-  "orange",
-  "green",
-  "magenta",
-  "gray",
-];
+<!--/**-->
+<!-- * 代码编辑器中 默认程序-->
+<!-- */-->
+<!--const codeDefaultValue = ref(-->
+<!--  "public class Main {\n" +-->
+<!--    "    public static void main(String[] args) {\n" +-->
+<!--    '        System.out.println("Hello, World!");\n' +-->
+<!--    "    }\n" +-->
+<!--    "}\n"-->
+<!--);-->
 
-/**
- * 代码编辑器中 默认程序
- */
-const codeDefaultValue = ref(
-  "public class Main {\n" +
-    "    public static void main(String[] args) {\n" +
-    '        System.out.println("Hello, World!");\n' +
-    "    }\n" +
-    "}\n"
-);
+<!--// const form = ref<QuestionSubmitAddRequest>({-->
+<!--//   language: "java",-->
+<!--//   code: codeDefaultValue as unknown as string,-->
+<!--// });-->
 
-const form = ref<QuestionSubmitAddRequest>({
-  language: "java",
-  code: codeDefaultValue as unknown as string,
-});
+<!--/**-->
+<!-- * 提交代码-->
+<!-- */-->
+<!--// const doSubmit = async () => {-->
+<!--//   if (!question.value?.id) {-->
+<!--//     return;-->
+<!--//   }-->
+<!--//-->
+<!--//   const res = await QuestionControllerService.doSubmitQuestionUsingPost({-->
+<!--//     ...form.value,-->
+<!--//     questionId: question.value.id,-->
+<!--//   });-->
+<!--//   if (res.code === 0) {-->
+<!--//     message.success("提交成功");-->
+<!--//   } else {-->
+<!--//     message.error("提交失败," + res.message);-->
+<!--//   }-->
+<!--// };-->
 
-/**
- * 提交代码
- */
-const doSubmit = async () => {
-  if (!question.value?.id) {
-    return;
-  }
-
-  const res = await QuestionControllerService.doSubmitQuestionUsingPost({
-    ...form.value,
-    questionId: question.value.id,
-  });
-  if (res.code === 0) {
-    message.success("提交成功");
-  } else {
-    message.error("提交失败," + res.message);
-  }
-};
-
-/**
- * 页面加载时，请求数据
- */
-onMounted(() => {
-  loadData();
-});
-
-const changeCode = (value: string) => {
-  form.value.code = value;
-};
-</script>
+<!--/**-->
+<!-- * 页面加载时，请求数据-->
+<!-- */-->
+<!--// onMounted(() => {-->
+<!--//   loadData();-->
+<!--// });-->
+<!--//-->
+<!--// const changeCode = (value: string) => {-->
+<!--//   form.value.code = value;-->
+<!--// };-->
+<!--</script>-->
 
 <style>
 #viewQuestionView {

@@ -36,6 +36,7 @@ export const routes: Array<RouteRecordRaw> = [
     path: "/",
     component: BasicLayout,
     meta: { hideInMenu: true },
+    redirect: "/home",
     children: [
       {
         path: "/home",

@@ -36,9 +36,9 @@ public class GlobalAuthFilter implements GlobalFilter, Ordered {
     private final List<String> whiteList = Arrays.asList(
             "/api/user/login",
             "/api/user/register",
-            "/api/questionSubmit/v2/api-docs",
-            "/api/user/v2/api-docs",
-            "/api/question/v2/api-docs"
+            "/api/questionSubmit/v3/api-docs",
+            "/api/user/v3/api-docs",
+            "/api/question/v3/api-docs"
     );
 
     public GlobalAuthFilter(StringRedisTemplate stringRedisTemplate) {
@@ -134,7 +134,7 @@ public class GlobalAuthFilter implements GlobalFilter, Ordered {
         response.setStatusCode(HttpStatus.UNAUTHORIZED);
         response.getHeaders().add("Content-Type", "application/json");
         JSONObject json = new JSONObject();
-        json.put("code", 401);
+        json.put("code", 40100);
         json.put("message", message);
         DataBuffer buffer = response.bufferFactory().wrap(json.toJSONString().getBytes(StandardCharsets.UTF_8));
         return response.writeWith(Mono.just(buffer));

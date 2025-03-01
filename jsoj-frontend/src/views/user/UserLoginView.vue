@@ -52,13 +52,13 @@
           @submit="handleAccountLogin"
         >
           <a-form-item
-            field="account"
+            field="userAccount"
             :rules="[{ required: true, message: '账号为必填项' }]"
           >
             <template #label>账号：</template>
 
             <a-input
-              v-model="accountLoginForm.account"
+              v-model="accountLoginForm.userAccount"
               placeholder="输入账号"
               allow-clear
             >
@@ -68,21 +68,21 @@
             </a-input>
           </a-form-item>
           <a-form-item
-            field="password"
+            field="userPassword"
             :rules="[{ required: true, message: '密码为必填项' }]"
           >
             <template #label>密码：</template>
             <div class="input-container"></div>
-            <a-input
-              v-model="accountLoginForm.password"
-              type="password"
+            <a-input-password
+              invisible-button
+              v-model="accountLoginForm.userPassword"
               placeholder="输入密码"
               allow-clear
             >
               <template #prefix>
                 <icon-lock />
               </template>
-            </a-input>
+            </a-input-password>
           </a-form-item>
           <a-button type="primary" html-type="submit" long class="custom-button"
             >账号登录
@@ -143,90 +143,79 @@
       </template>
 
       <!-- 注册表单 -->
-      <a-form
-        v-else
-        class="register-form"
-        :model="registerForm"
-        @submit="handleRegister"
-      >
-        <a-form-item
-          field="account"
-          :rules="[{ required: true, message: '账号为必填项' }]"
+      <template v-else>
+        <a-form
+          class="register-form"
+          :model="registerForm"
+          @submit="handleRegister"
         >
-          <template #label>账号：</template>
-          <a-input
-            v-model="registerForm.account"
-            placeholder="输入账号"
-            allow-clear
+          <a-form-item
+            field="userAccount"
+            :rules="[{ required: true, message: '账号为必填项' }]"
           >
-            <template #prefix>
-              <icon-user />
-            </template>
-          </a-input>
-        </a-form-item>
-        <a-form-item
-          field="password"
-          :rules="[{ required: true, message: '密码为必填项' }]"
-        >
-          <template #label>密码：</template>
-          <a-input
-            v-model="registerForm.password"
-            type="password"
-            placeholder="输入密码"
-            allow-clear
+            <template #label>账号：</template>
+            <a-input
+              v-model="registerForm.userAccount"
+              placeholder="输入账号"
+              allow-clear
+            >
+              <template #prefix>
+                <icon-user />
+              </template>
+            </a-input>
+          </a-form-item>
+          <a-form-item
+            field="userPassword"
+            :rules="[{ required: true, message: '密码为必填项' }]"
           >
-            <template #prefix>
-              <icon-lock />
-            </template>
-          </a-input>
-        </a-form-item>
-        <a-form-item
-          field="confirmPassword"
-          :rules="[
-            { required: true, message: '确认密码为必填项' },
-            { validator: validateConfirmPassword },
-          ]"
-        >
-          <template #label>确认密码：</template>
-          <a-input
-            v-model="registerForm.confirmPassword"
-            type="password"
-            placeholder="再次输入密码"
-            allow-clear
+            <template #label>密码：</template>
+            <a-input-password
+              invisible-button
+              v-model="registerForm.userPassword"
+              placeholder="输入密码"
+              allow-clear
+            >
+              <template #prefix>
+                <icon-lock />
+              </template>
+            </a-input-password>
+          </a-form-item>
+          <a-form-item
+            field="checkPassword"
+            :rules="[
+              { required: true, message: '确认密码为必填项' },
+              { validator: validateConfirmPassword },
+            ]"
           >
-            <template #prefix>
-              <icon-lock />
-            </template>
-          </a-input>
-        </a-form-item>
-        <a-form-item field="email">
-          <template #label>邮箱：</template>
-          <a-input
-            v-model="registerForm.email"
-            placeholder="输入邮箱地址（可选）"
-            allow-clear
-          >
-            <template #prefix>
-              <icon-email />
-            </template>
-          </a-input>
-        </a-form-item>
-        <a-form-item field="phone">
-          <template #label>手机号：</template>
-          <a-input
-            v-model="registerForm.phone"
-            placeholder="+86 输入手机号（可选）"
-            allow-clear
-          >
-            <template #prefix>
-              <icon-phone />
-            </template>
-          </a-input>
-        </a-form-item>
-        <a-button type="primary" html-type="submit" long class="custom-button"
-          >立即注册
-        </a-button>
-      </a-form>
+            <template #label>确认密码：</template>
+            <a-input-password
+              invisible-button
+              v-model="registerForm.checkPassword"
+              placeholder="再次输入密码"
+              allow-clear
+            >
+              <template #prefix>
+                <icon-lock />
+              </template>
+            </a-input-password>
+          </a-form-item>
+          <a-form-item field="userEmail">
+            <template #label>邮箱：</template>
+            <a-input
+              v-model="registerForm.userEmail"
+              placeholder="输入邮箱地址（可选）"
+              allow-clear
+            >
+              <template #prefix>
+                <icon-email />
+              </template>
+            </a-input>
+          </a-form-item>
+          <a-button type="primary" html-type="submit" long class="custom-button"
+            >立即注册
+          </a-button>
+        </a-form>
+      </template>
 
       <!-- 协议声明 -->
       <div class="agreement">
@@ -248,6 +237,19 @@ import {
   IconScan,
   IconUser,
 } from "@arco-design/web-vue/es/icon";
+import { Message } from "@arco-design/web-vue";
+import store from "@/store";
+import {
+  BaseResponseLong,
+  BaseResponseUserVO,
+  Service,
+  UserLoginRequest,
+  UserRegisterRequest,
+} from "@/userService";
+import { setToken } from "@/utils/cookie";
+import { useRouter } from "vue-router";
+
+const router = useRouter();
 
 // 登录/注册状态
 const isLogin = ref(true);
@@ -261,24 +263,23 @@ const activeLoginMethod = ref("account");
 
 // 账号密码登录表单
 const accountLoginForm = reactive({
-  account: "",
-  password: "",
+  userAccount: "",
+  userPassword: "",
 });
 
 // 手机号登录表单
 const loginForm = reactive({
-  phone: "",
+  userPhone: "",
   code: "",
 });
 const loginCountdown = ref(0);
 
 // 注册表单
 const registerForm = reactive({
-  account: "",
-  password: "",
-  confirmPassword: "",
-  email: "",
-  phone: "",
+  userAccount: "",
+  userPassword: "",
+  checkPassword: "",
+  userEmail: "",
 });
 
 // 验证码处理逻辑
@@ -296,28 +297,95 @@ const handleCountdown = (countdownRef: Ref<number>) => {
 const handleLoginCode = () => handleCountdown(loginCountdown);
 
 // 自定义验证函数，用于验证确认密码和密码是否相同
-const validateConfirmPassword = (rule: any, value: string) => {
-  if (value !== registerForm.password) {
-    return Promise.reject(new Error("两次输入的密码不一致"));
+const validateConfirmPassword = (value: string) => {
+  if (value !== registerForm.userPassword) {
+    Message.error("两次输入的密码不一致");
+    return { valid: false, error: "两次输入的密码不一致" };
   }
-  return Promise.resolve();
+  return { valid: true, error: null };
 };
 
-// 提交处理
+// 登录
 const handleAccountLogin = async () => {
-  /* 账号密码登录逻辑 */
+  try {
+    // 从表单中获取用户输入的账号和密码
+    const { userAccount, userPassword } = accountLoginForm;
+    // 检查账号和密码是否为空
+    if (!userAccount || !userPassword) {
+      Message.error("账号和密码不能为空");
+      return;
+    }
+    // 构建登录请求体
+    const requestBody: UserLoginRequest = {
+      userAccount,
+      userPassword,
+    };
+    // 调用登录接口
+    const response = await Service.userLogin(requestBody);
+    await handleLoginSuccess(response);
+  } catch (error) {
+    Message.error("登录请求出错，请稍后重试");
+  }
 };
+
 const handleLogin = async () => {
   /* 手机号登录逻辑 */
 };
+
 const handleRegister = async () => {
-  const form = document.querySelector(".register-form") as HTMLFormElement;
-  if (form) {
-    form.reportValidity();
-    if (form.checkValidity()) {
-      // 表单验证通过，执行注册逻辑
-      console.log("注册信息:", registerForm);
+  try {
+    // 从表单中获取用户输入的账号和密码
+    const { userAccount, userPassword, checkPassword, userEmail } =
+      registerForm;
+    // 检查账号和密码是否为空
+    if (!userAccount || !userPassword || !checkPassword) {
+      Message.error("账号和密码不能为空");
+      return;
     }
+    // 构建登录请求体
+    const requestBody: UserRegisterRequest = {
+      userAccount,
+      userPassword,
+      checkPassword,
+      userEmail,
+    };
+    // 调用登录接口
+    const response = await Service.userRegister(requestBody);
+    await handleRegisterSuccess(response);
+  } catch (error) {
+    Message.error("登录请求出错，请稍后重试");
+  }
+};
+
+// 登录成功后的处理逻辑
+const handleLoginSuccess = async (response: BaseResponseUserVO) => {
+  if (response.code === 200 && response.data?.token) {
+    const token = response.data.token;
+    setToken(token);
+    await store.dispatch("user/getLoginUser");
+    // 处理跳转逻辑
+    const redirectPath = router.currentRoute.value.query?.redirect;
+    const isValidPath = (path: unknown): path is string =>
+      typeof path === "string" && path.startsWith("/");
+
+    if (isValidPath(redirectPath)) {
+      // 跳转到来源页面
+      await router.replace(redirectPath);
+    } else {
+      // 跳转到默认首页
+      await router.replace("/home");
+    }
+    Message.success("登录成功");
+  }
+};
+
+// 注册成功后的处理逻辑
+const handleRegisterSuccess = async (response: BaseResponseLong) => {
+  if (response.code === 200) {
+    Message.success("注册成功");
+    isLogin.value = true;
+  } else {
+    Message.error("注册失败，请稍后再试～");
   }
 };
 </script>
