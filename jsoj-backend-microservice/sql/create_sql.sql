@@ -8,29 +8,29 @@ create database if not exists jsoj;
 use jsoj;
 
 -- 用户表
-create table if not exists user
+create table user
 (
-    id           bigint auto_increment comment 'id' primary key,
-    userAccount  varchar(256)                           not null comment '账号',
-    userPassword varchar(512)                           not null comment '密码',
-    userPhone    varchar(256)                           null comment '手机号',
-    userEmail    varchar(256)                           null comment '邮箱',
-    unionId      varchar(256)                           null comment '微信开放平台id',
-    mpOpenId     varchar(256)                           null comment '公众号openId',
-    userName     varchar(256)                           null comment '用户昵称',
-    userAvatar   varchar(1024)                          null comment '用户头像',
-    userProfile  varchar(512)                           null comment '用户简介',
-    userRole     varchar(256) default 'user'            not null comment '用户角色：user/admin/ban',
-    createTime   datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
-    updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete     tinyint      default 0                 not null comment '是否删除',
-    index idx_unionId (unionId)
-) comment '用户' collate = utf8mb4_unicode_ci;
+    id           bigint auto_increment comment 'id'
+        primary key,
+    userPassword varchar(512)                         not null comment '密码',
+    userPhone    varchar(16)                          null comment '手机号',
+    userEmail    varchar(256)                         null comment '用户邮箱',
+    unionId      varchar(256)                         null comment '微信开放平台id',
+    mpOpenId     varchar(256)                         null comment '公众号openId',
+    userName     varchar(128)                         null comment '用户昵称',
+    userAvatar   varchar(1024)                        null comment '用户头像',
+    userProfile  varchar(512)                         null comment '用户简介',
+    userRole     varchar(8) default 'user'            not null comment '用户角色：user/admin/ban',
+    createTime   datetime   default CURRENT_TIMESTAMP not null comment '创建时间',
+    updateTime   datetime   default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
+    isDelete     tinyint    default 0                 not null comment '是否删除'
+)
+    comment '用户' collate = utf8mb4_unicode_ci;
 
--- 题目表
-create table if not exists question
+create table question
 (
-    id          bigint auto_increment comment 'id' primary key,
+    id          bigint auto_increment comment 'id'
+        primary key,
     title       varchar(512)                       null comment '标题',
     content     text                               null comment '内容',
     tags        varchar(1024)                      null comment '标签列表（json 数组）',
@@ -42,11 +42,15 @@ create table if not exists question
     thumbNum    int      default 0                 not null comment '点赞数',
     favourNum   int      default 0                 not null comment '收藏数',
     userId      bigint                             not null comment '创建用户 id',
+    userStatus  tinyint  default 0                 not null comment '用户-题目状态（0-未解决）',
     createTime  datetime default CURRENT_TIMESTAMP not null comment '创建时间',
     updateTime  datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete    tinyint  default 0                 not null comment '是否删除',
-    index idx_userId (userId)
-) comment '题目' collate = utf8mb4_unicode_ci;
+    isDelete    tinyint  default 0                 not null comment '是否删除'
+)
+    comment '题目' collate = utf8mb4_unicode_ci;
+
+create index idx_userId
+    on question (userId);
 
 # 题目提交表
 create table if not exists question_submit
@@ -65,14 +69,25 @@ create table if not exists question_submit
     index idx_userId (userId)
 ) comment '题目提交表';
 
--- 帖子收藏表（硬删除）
-create table if not exists post_favour
+# 用户-题目状态表
+create table user_question_status
 (
-    id         bigint auto_increment comment 'id' primary key,
-    postId     bigint                             not null comment '帖子 id',
-    userId     bigint                             not null comment '创建用户 id',
-    createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间',
-    updateTime datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    index idx_postId (postId),
-    index idx_userId (userId)
-) comment '帖子收藏';
+    id             int auto_increment comment '主键'
+        primary key,
+    userId         bigint                             not null comment '用户Id',
+    questionId     bigint                             not null comment '题目Id',
+    questionStatus tinyint                            null comment '该用户与这道题的状态(1-尝试过  2-已解决)',
+    createTime     datetime default CURRENT_TIMESTAMP null comment '创建时间',
+    constraint user_question_status_ibfk_1
+        foreign key (userId) references user (id),
+    constraint user_question_status_ibfk_2
+        foreign key (questionId) references question (id)
+)
+    comment '用户-题目状态表';
+
+create index questionId
+    on user_question_status (questionId);
+
+create index user_question_status_userId_index
+    on user_question_status (userId)
+    comment '用户id索引';
