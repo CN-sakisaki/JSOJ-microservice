@@ -61,12 +61,12 @@ public class UserController {
         if (userRegisterRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        String userAccount = userRegisterRequest.getUserAccount();
+        String userPhone = userRegisterRequest.getUserPhone();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
         String userEmail = userRegisterRequest.getUserEmail();
-        ThrowUtils.throwIf(StringUtils.isAnyBlank(userAccount, userPassword, checkPassword), ErrorCode.PARAMS_ERROR, "缺少必要参数");
-        long result = userService.userRegister(userAccount, userPassword, checkPassword, userEmail);
+        ThrowUtils.throwIf(StringUtils.isAnyBlank(userPhone, userPassword, checkPassword), ErrorCode.PARAMS_ERROR, "缺少必要参数");
+        long result = userService.userRegister(userPhone, userPassword, checkPassword, userEmail);
         return ResultUtils.success(result);
     }
 
@@ -83,10 +83,10 @@ public class UserController {
     @PostMapping("/login")
     @ExcludeMethod
     public BaseResponse<UserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest) {
-        String userAccount = userLoginRequest.getUserAccount();
+        String userPhone = userLoginRequest.getUserPhone();
         String userPassword = userLoginRequest.getUserPassword();
-        ThrowUtils.throwIf(StringUtils.isAnyBlank(userAccount, userPassword), ErrorCode.PARAMS_ERROR);
-        UserVO userVO = userService.userLogin(userAccount, userPassword);
+        ThrowUtils.throwIf(StringUtils.isAnyBlank(userPhone, userPassword), ErrorCode.PARAMS_ERROR);
+        UserVO userVO = userService.userLogin(userPhone, userPassword);
         return ResultUtils.success(userVO);
     }
 

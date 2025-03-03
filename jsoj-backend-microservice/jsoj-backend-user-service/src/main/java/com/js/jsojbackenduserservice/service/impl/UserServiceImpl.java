@@ -57,35 +57,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 用户注册
      *
-     * @param userAccount   用户账户
+     * @param userPhone   用户账户
      * @param userPassword  用户密码
      * @param checkPassword 校验密码
      * @return long
      */
     @Override
-    public long userRegister(String userAccount, String userPassword, String checkPassword, String userEmail) {
+    public long userRegister(String userPhone, String userPassword, String checkPassword, String userEmail) {
         // 1. 校验
-        ThrowUtils.throwIf(StringUtils.isAnyBlank(userAccount, userPassword, checkPassword), ErrorCode.PARAMS_ERROR, "参数为空");
-        ThrowUtils.throwIf(userAccount.length() < 8, ErrorCode.PARAMS_ERROR, "用户账号过短");
+        ThrowUtils.throwIf(StringUtils.isAnyBlank(userPhone, userPassword, checkPassword), ErrorCode.PARAMS_ERROR, "参数为空");
+        ThrowUtils.throwIf(userPhone.length() < 11, ErrorCode.PARAMS_ERROR, "手机号过短");
         ThrowUtils.throwIf(userPassword.length() < 8 || checkPassword.length() < 8, ErrorCode.PARAMS_ERROR, "用户密码过短");
         ThrowUtils.throwIf(!userPassword.equals(checkPassword), ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
         if (userEmail != null) {
             ThrowUtils.throwIf(emailPattern(userEmail), ErrorCode.PARAMS_ERROR);
         }
-        synchronized (userAccount.intern()) {
+        synchronized (userPhone.intern()) {
             // 账户不能重复
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            queryWrapper.eq("userAccount", userAccount);
+            queryWrapper.eq("userAccount", userPhone);
             long count = this.baseMapper.selectCount(queryWrapper);
-            if (count > 0) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
-            }
+            ThrowUtils.throwIf(count > 0, ErrorCode.PARAMS_ERROR, "手机号已注册");
             // 2. 加密
             String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
             // 3. 插入数据
             User user = new User();
             user.setUserEmail(userEmail);
-            user.setUserAccount(userAccount);
+            user.setUserPhone(userPhone);
             user.setUserPassword(encryptPassword);
             boolean saveResult = this.save(user);
             ThrowUtils.throwIf(!saveResult, ErrorCode.SYSTEM_ERROR, "注册失败,系统错误");
@@ -96,21 +94,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     /**
      * 用户登录
      *
-     * @param userAccount  用户账户
+     * @param userPhone  用户账户
      * @param userPassword 用户密码
      * @return LoginUserVO
      */
     @Override
-    public UserVO userLogin(String userAccount, String userPassword) {
+    public UserVO userLogin(String userPhone, String userPassword) {
         // 1. 校验
-        ThrowUtils.throwIf(StringUtils.isAnyBlank(userAccount, userPassword), ErrorCode.PARAMS_ERROR, "参数为空");
-        ThrowUtils.throwIf(userAccount.length() < 4, ErrorCode.PARAMS_ERROR, "账号错误");
+        ThrowUtils.throwIf(StringUtils.isAnyBlank(userPhone, userPassword), ErrorCode.PARAMS_ERROR, "参数为空");
+        ThrowUtils.throwIf(userPhone.length() < 4, ErrorCode.PARAMS_ERROR, "账号错误");
         ThrowUtils.throwIf(userPassword.length() < 8, ErrorCode.PARAMS_ERROR, "密码错误");
         // 2. 加密
         String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
         // 查询用户是否存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("userAccount", userAccount);
+        queryWrapper.eq("userPhone", userPhone);
         queryWrapper.eq("userPassword", encryptPassword);
         User user = this.baseMapper.selectOne(queryWrapper);
         // 用户不存在

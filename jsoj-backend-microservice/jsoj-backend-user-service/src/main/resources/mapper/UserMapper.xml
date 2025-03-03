@@ -6,7 +6,6 @@
 
     <resultMap id="BaseResultMap" type="com.js.jsojbackendmodel.entity.User">
         <id property="id" column="id"/>
-        <result property="userAccount" column="userAccount"/>
         <result property="userPassword" column="userPassword"/>
         <result property="userPhone" column="userPhone"/>
         <result property="userEmail" column="userEmail"/>
@@ -22,7 +21,7 @@
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,userAccount,userPassword,userPhone,userEmail,unionId,
+        id,userPassword,userPhone,userEmail,unionId,
         mpOpenId,userName,userAvatar,userProfile,userRole,
         createTime,updateTime,isDelete
     </sql>

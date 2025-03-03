@@ -52,18 +52,18 @@
           @submit="handleAccountLogin"
         >
           <a-form-item
-            field="userAccount"
-            :rules="[{ required: true, message: '账号为必填项' }]"
+            field="userPhone"
+            :rules="[{ required: true, message: '手机号为必填项' }]"
           >
-            <template #label>账号：</template>
+            <template #label>手机号：</template>
 
             <a-input
-              v-model="accountLoginForm.userAccount"
-              placeholder="输入账号"
+              v-model="accountLoginForm.userPhone"
+              placeholder="+86 输入手机号"
               allow-clear
             >
               <template #prefix>
-                <icon-user />
+                <icon-phone />
               </template>
             </a-input>
           </a-form-item>
@@ -150,17 +150,17 @@
           @submit="handleRegister"
         >
           <a-form-item
-            field="userAccount"
-            :rules="[{ required: true, message: '账号为必填项' }]"
+            field="userPhone"
+            :rules="[{ required: true, message: '手机号为必填项' }]"
           >
-            <template #label>账号：</template>
+            <template #label>手机号：</template>
             <a-input
-              v-model="registerForm.userAccount"
-              placeholder="输入账号"
+              v-model="registerForm.userPhone"
+              placeholder="+86 输入手机号"
               allow-clear
             >
               <template #prefix>
-                <icon-user />
+                <icon-phone />
               </template>
             </a-input>
           </a-form-item>
@@ -235,7 +235,6 @@ import {
   IconLock,
   IconPhone,
   IconScan,
-  IconUser,
 } from "@arco-design/web-vue/es/icon";
 import { Message } from "@arco-design/web-vue";
 import store from "@/store";
@@ -263,7 +262,7 @@ const activeLoginMethod = ref("account");
 
 // 账号密码登录表单
 const accountLoginForm = reactive({
-  userAccount: "",
+  userPhone: "",
   userPassword: "",
 });
 
@@ -276,7 +275,7 @@ const loginCountdown = ref(0);
 
 // 注册表单
 const registerForm = reactive({
-  userAccount: "",
+  userPhone: "",
   userPassword: "",
   checkPassword: "",
   userEmail: "",
@@ -309,15 +308,15 @@ const validateConfirmPassword = (value: string) => {
 const handleAccountLogin = async () => {
   try {
     // 从表单中获取用户输入的账号和密码
-    const { userAccount, userPassword } = accountLoginForm;
+    const { userPhone, userPassword } = accountLoginForm;
     // 检查账号和密码是否为空
-    if (!userAccount || !userPassword) {
+    if (!userPhone || !userPassword) {
       Message.error("账号和密码不能为空");
       return;
     }
     // 构建登录请求体
     const requestBody: UserLoginRequest = {
-      userAccount,
+      userPhone,
       userPassword,
     };
     // 调用登录接口
@@ -335,16 +334,15 @@ const handleLogin = async () => {
 const handleRegister = async () => {
   try {
     // 从表单中获取用户输入的账号和密码
-    const { userAccount, userPassword, checkPassword, userEmail } =
-      registerForm;
+    const { userPhone, userPassword, checkPassword, userEmail } = registerForm;
     // 检查账号和密码是否为空
-    if (!userAccount || !userPassword || !checkPassword) {
+    if (!userPhone || !userPassword || !checkPassword) {
       Message.error("账号和密码不能为空");
       return;
     }
     // 构建登录请求体
     const requestBody: UserRegisterRequest = {
-      userAccount,
+      userPhone,
       userPassword,
       checkPassword,
       userEmail,
