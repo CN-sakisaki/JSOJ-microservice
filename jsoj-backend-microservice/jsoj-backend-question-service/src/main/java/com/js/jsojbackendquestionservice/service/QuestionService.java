@@ -4,11 +4,13 @@ package com.js.jsojbackendquestionservice.service;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.js.jsojbackendmodel.dto.question.QuestionAddRequest;
+import com.js.jsojbackendmodel.dto.question.QuestionDeleteRequest;
 import com.js.jsojbackendmodel.dto.question.QuestionQueryRequest;
+import com.js.jsojbackendmodel.dto.question.QuestionUpdateRequest;
 import com.js.jsojbackendmodel.entity.Question;
-import com.js.jsojbackendmodel.vo.QuestionVO;
-
-import javax.servlet.http.HttpServletRequest;
+import com.js.jsojbackendmodel.vo.admin.QuestionAdminVO;
+import com.js.jsojbackendmodel.vo.user.QuestionUserVO;
 
 /**
  * @author jsnlg
@@ -16,13 +18,42 @@ import javax.servlet.http.HttpServletRequest;
  * @createDate 2024-10-15 15:09:55
  */
 public interface QuestionService extends IService<Question> {
+
     /**
-     * 校验
-     *
-     * @param question
-     * @param add
+     * 创建题目
+     * @param questionAddRequest 创建题目的信息
+     * @return 是否创建的成功
      */
-    void validQuestion(Question question, boolean add);
+    Boolean addQuestion(QuestionAddRequest questionAddRequest);
+
+    /**
+     * 更新题目
+     * @param questionUpdateRequest 题目更新信息
+     * @return 是否更新的成功
+     */
+    Boolean updateQuestion(QuestionUpdateRequest questionUpdateRequest);
+
+    /**
+     * 删除题目
+     * @param questionDeleteRequest
+     * @return 是否删除的成功
+     */
+    Boolean deleteQuestion(QuestionDeleteRequest questionDeleteRequest);
+
+    /**
+     * 分页获取题目（用户）
+     *
+     * @param questionPage
+     * @return
+     */
+    Page<QuestionUserVO> getQuestionVOPage(Page<Question> questionPage);
+
+    /**
+     * 分页获取题目（管理员）
+     * @param questionPage
+     * @return
+     */
+    Page<QuestionAdminVO> getQuestionAdminVOPage(Page<Question> questionPage);
 
     /**
      * 获取查询条件
@@ -33,20 +64,20 @@ public interface QuestionService extends IService<Question> {
     QueryWrapper<Question> getQueryWrapper(QuestionQueryRequest questionQueryRequest);
 
     /**
-     * 获取题目封装
+     * 根据ID获取题目封装（用户）
      *
      * @param question
-     * @param request
-     * @return
+     * @return QuestionUserVO
      */
-    QuestionVO getQuestionVO(Question question, HttpServletRequest request);
+    QuestionUserVO getQuestionUserVOById(Question question);
 
     /**
-     * 分页获取题目封装
+     * 根据ID获取题目封装（管理员）
      *
-     * @param questionPage
-     * @param request
-     * @return
+     * @param question
+     * @return QuestionAdminVO
      */
-    Page<QuestionVO> getQuestionVOPage(Page<Question> questionPage, HttpServletRequest request);
+    QuestionAdminVO getQuestionAdminVOById(Question question);
+
+
 }
