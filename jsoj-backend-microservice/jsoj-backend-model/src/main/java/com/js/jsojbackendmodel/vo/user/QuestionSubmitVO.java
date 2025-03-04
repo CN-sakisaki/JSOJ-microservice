@@ -1,7 +1,6 @@
-package com.js.jsojbackendmodel.vo;
+package com.js.jsojbackendmodel.vo.user;
 
 import cn.hutool.json.JSONUtil;
-
 import com.js.jsojbackendmodel.codesandbox.JudgeInfo;
 import com.js.jsojbackendmodel.entity.QuestionSubmit;
 import lombok.Data;
@@ -71,7 +70,7 @@ public class QuestionSubmitVO implements Serializable {
     /**
      * 对应题目信息
      */
-    private QuestionVO questionVO;
+    private QuestionUserVO questionUserVO;
 
     /**
      * 包装类转对象

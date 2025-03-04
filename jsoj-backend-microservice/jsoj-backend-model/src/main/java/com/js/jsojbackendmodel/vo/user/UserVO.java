@@ -1,4 +1,4 @@
-package com.js.jsojbackendmodel.vo;
+package com.js.jsojbackendmodel.vo.user;
 
 import lombok.Data;
 
