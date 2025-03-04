@@ -16,8 +16,8 @@ public @interface AuthCheck {
 
     /**
      * 必须有某个角色
+     * 默认值为空字符串，表示允许任意登录用户
      */
     String mustRole() default "";
-
 }
 
