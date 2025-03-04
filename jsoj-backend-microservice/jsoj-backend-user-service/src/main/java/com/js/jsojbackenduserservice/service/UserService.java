@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.js.jsojbackendmodel.dto.user.UserQueryRequest;
 import com.js.jsojbackendmodel.entity.User;
-import com.js.jsojbackendmodel.vo.UserVO;
+import com.js.jsojbackendmodel.vo.user.UserVO;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;

@@ -15,7 +15,7 @@ import com.js.jsojbackendmodel.constant.CommonConstant;
 import com.js.jsojbackendmodel.dto.user.UserQueryRequest;
 import com.js.jsojbackendmodel.entity.User;
 import com.js.jsojbackendmodel.enums.UserRoleEnum;
-import com.js.jsojbackendmodel.vo.UserVO;
+import com.js.jsojbackendmodel.vo.user.UserVO;
 import com.js.jsojbackenduserservice.mapper.UserMapper;
 import com.js.jsojbackenduserservice.service.UserService;
 import io.jsonwebtoken.Claims;

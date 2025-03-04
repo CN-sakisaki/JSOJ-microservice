@@ -2,7 +2,7 @@ package com.js.jsojbackendserviceclient.service;
 
 import com.js.jsojbackendmodel.entity.User;
 import com.js.jsojbackendmodel.enums.UserRoleEnum;
-import com.js.jsojbackendmodel.vo.UserVO;
+import com.js.jsojbackendmodel.vo.user.UserVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;

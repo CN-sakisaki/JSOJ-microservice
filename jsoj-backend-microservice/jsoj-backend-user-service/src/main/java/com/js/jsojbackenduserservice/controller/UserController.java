@@ -13,7 +13,7 @@ import com.js.jsojbackendmodel.constant.UserConstant;
 import com.js.jsojbackendmodel.dto.user.*;
 import com.js.jsojbackendmodel.entity.User;
 import com.js.jsojbackendmodel.request.DeleteRequest;
-import com.js.jsojbackendmodel.vo.UserVO;
+import com.js.jsojbackendmodel.vo.user.UserVO;
 import com.js.jsojbackenduserservice.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
