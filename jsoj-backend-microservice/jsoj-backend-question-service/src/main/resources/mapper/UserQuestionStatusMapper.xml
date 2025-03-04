@@ -8,11 +8,12 @@
         <id property="id" column="id"/>
         <result property="userId" column="userId"/>
         <result property="questionId" column="questionId"/>
+        <result property="questionTitle" column="questionTitle"/>
         <result property="questionStatus" column="questionStatus"/>
         <result property="createTime" column="createTime"/>
     </resultMap>
 
     <sql id="Base_Column_List">
-        id,userId,questionId,questionStatus,createTime
+        id,userId,questionId,questionTitle,questionStatus,createTime
     </sql>
 </mapper>
