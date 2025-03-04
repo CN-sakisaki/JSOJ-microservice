@@ -1,7 +1,11 @@
 package com.js.jsojbackendquestionservice.service;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.js.jsojbackendmodel.dto.userQuestionStatus.UserQuestionStatusQueryRequest;
 import com.js.jsojbackendmodel.entity.UserQuestionStatus;
+import com.js.jsojbackendmodel.vo.user.UserQuestionStatusVO;
 
 
 /**
@@ -11,4 +15,12 @@ import com.js.jsojbackendmodel.entity.UserQuestionStatus;
  */
 public interface UserQuestionStatusService extends IService<UserQuestionStatus> {
 
+    /**
+     * 构建查询条件
+     * @param userQuestionStatusQueryRequest
+     * @return Wrapper
+     */
+    Wrapper<UserQuestionStatus> getQueryWrapper(UserQuestionStatusQueryRequest userQuestionStatusQueryRequest);
+
+    Page<UserQuestionStatusVO> getUserQuestionVOPage(Page<UserQuestionStatus> userQuestionStatusPage);
 }
