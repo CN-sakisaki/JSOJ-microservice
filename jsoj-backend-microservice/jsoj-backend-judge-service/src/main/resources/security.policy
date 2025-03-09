@@ -1,0 +1,6 @@
+grant {
+    permission java.io.FilePermission "${user.dir}/resource/code/-", "read,write,delete";
+    permission java.lang.RuntimePermission "createSecurityManager";
+    permission java.lang.RuntimePermission "setSecurityManager";
+    permission java.util.PropertyPermission "*", "read,write";
+};
