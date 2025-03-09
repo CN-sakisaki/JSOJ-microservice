@@ -209,6 +209,7 @@ public class QuestionController {
      * @return 提交记录的 id
      */
     @PostMapping("/question_submit/do")
+    @AuthCheck
     public BaseResponse<Long> doSubmitQuestion(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest) {
         ThrowUtils.throwIf(questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0, ErrorCode.PARAMS_ERROR);
         // 获取登录用户

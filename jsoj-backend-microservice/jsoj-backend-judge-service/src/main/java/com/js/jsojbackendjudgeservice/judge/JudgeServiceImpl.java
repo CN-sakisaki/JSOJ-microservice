@@ -19,6 +19,7 @@ import com.js.jsojbackendserviceclient.service.QuestionFeignClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.concurrent.*;
@@ -148,8 +149,8 @@ public class JudgeServiceImpl implements JudgeService {
                 CodeSandBox sandbox = new CodeSandBoxProxy(CodeSandBoxFactory.newInstance(type));
                 return sandbox.executeCode(request);
             });
-            // 可配置化，设置超时时间为 10 秒
-            return future.get(10, TimeUnit.SECONDS);
+            // 可配置化，设置超时时间为 20 秒
+            return future.get(20, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
             // 超时则取消任务
             future.cancel(true);
