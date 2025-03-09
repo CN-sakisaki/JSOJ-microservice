@@ -6,14 +6,17 @@ import com.js.jsojbackendcommon.annotation.ExcludeMethod;
 import com.js.jsojbackendcommon.common.BaseResponse;
 import com.js.jsojbackendcommon.common.ErrorCode;
 import com.js.jsojbackendcommon.common.ResultUtils;
+import com.js.jsojbackendcommon.common.UserContext;
 import com.js.jsojbackendcommon.exception.ThrowUtils;
 import com.js.jsojbackendmodel.constant.UserConstant;
 import com.js.jsojbackendmodel.dto.question.QuestionAddRequest;
 import com.js.jsojbackendmodel.dto.question.QuestionDeleteRequest;
 import com.js.jsojbackendmodel.dto.question.QuestionQueryRequest;
 import com.js.jsojbackendmodel.dto.question.QuestionUpdateRequest;
+import com.js.jsojbackendmodel.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.js.jsojbackendmodel.dto.userQuestionStatus.UserQuestionStatusQueryRequest;
 import com.js.jsojbackendmodel.entity.Question;
+import com.js.jsojbackendmodel.entity.User;
 import com.js.jsojbackendmodel.entity.UserQuestionStatus;
 import com.js.jsojbackendmodel.vo.admin.QuestionAdminVO;
 import com.js.jsojbackendmodel.vo.user.QuestionUserVO;
@@ -205,17 +208,14 @@ public class QuestionController {
      * @param request
      * @return 提交记录的 id
      */
-    // @PostMapping("/question_submit/do")
-    // public BaseResponse<Long> doSubmitQuestion(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
-    //                                            HttpServletRequest request) {
-    //     if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {
-    //         throw new BusinessException(ErrorCode.PARAMS_ERROR);
-    //     }
-    //     // 登录
-    //     final User loginUser = userFeignClient.getLoginUser(request);
-    //     long questionSubmitId = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
-    //     return ResultUtils.success(questionSubmitId);
-    // }
+    @PostMapping("/question_submit/do")
+    public BaseResponse<Long> doSubmitQuestion(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest) {
+        ThrowUtils.throwIf(questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0, ErrorCode.PARAMS_ERROR);
+        // 获取登录用户
+        User loginUser = UserContext.getUser();
+        long questionSubmitId = questionSubmitService.doQuestionSubmit(questionSubmitAddRequest, loginUser);
+        return ResultUtils.success(questionSubmitId);
+    }
 
     /**
      * 分页获取题目提交列表（除了管理员外，其他普通用户只能看到非答案、提交的代码等公开信息）

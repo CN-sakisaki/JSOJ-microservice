@@ -2,6 +2,7 @@ package com.js.jsojbackendserviceclient.service;
 
 import com.js.jsojbackendmodel.entity.Question;
 import com.js.jsojbackendmodel.entity.QuestionSubmit;
+import com.js.jsojbackendserviceclient.component.QuestionFeignClientFallback;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,7 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
  * @author sakisaki
  * @date 2025/2/22 15:05
  */
-@FeignClient(name = "jsoj-backend-question-service", path = "/api/question/inner")
+@FeignClient(name = "jsoj-backend-question-service", path = "/api/question/inner", fallback = QuestionFeignClientFallback.class)
 public interface QuestionFeignClient {
 
     /**

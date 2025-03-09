@@ -1,5 +1,7 @@
 package com.js.jsojbackendquestionservice.rabbitmq;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.core.MessageDeliveryMode;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +15,8 @@ import javax.annotation.Resource;
  * @time 2024-11-05 02:34:06
  */
 @Component
-public class MyMessageProducer {
+@Slf4j
+public class QuestionSubmitMessageProducer {
     @Resource
     private RabbitTemplate rabbitTemplate;
 
@@ -25,6 +28,14 @@ public class MyMessageProducer {
      * @param message    消息内容
      */
     public void sendMessage(String exchange, String routingKey, String message) {
-        rabbitTemplate.convertAndSend(exchange, routingKey, message);
+        try {
+            rabbitTemplate.convertAndSend(exchange, routingKey, message, m -> {
+                m.getMessageProperties().setDeliveryMode(MessageDeliveryMode.PERSISTENT);
+                return m;
+            });
+        } catch (Exception e) {
+            log.error("消息发送失败: {}", e.getMessage());
+            throw new RuntimeException("消息发送失败", e);
+        }
     }
 }

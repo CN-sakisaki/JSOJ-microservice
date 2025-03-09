@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.core.toolkit.CollectionUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.js.jsojbackendcommon.common.ErrorCode;
-import com.js.jsojbackendcommon.exception.BusinessException;
+import com.js.jsojbackendcommon.exception.ThrowUtils;
 import com.js.jsojbackendcommon.utils.SqlUtils;
 import com.js.jsojbackendmodel.constant.CommonConstant;
 import com.js.jsojbackendmodel.dto.questionsubmit.QuestionSubmitAddRequest;
@@ -15,9 +15,9 @@ import com.js.jsojbackendmodel.entity.QuestionSubmit;
 import com.js.jsojbackendmodel.entity.User;
 import com.js.jsojbackendmodel.enums.QuestionStatusEnum;
 import com.js.jsojbackendmodel.enums.QuestionSubmitLanguageEnum;
-import com.js.jsojbackendmodel.vo.QuestionSubmitVO;
+import com.js.jsojbackendmodel.vo.user.QuestionSubmitVO;
 import com.js.jsojbackendquestionservice.mapper.QuestionSubmitMapper;
-import com.js.jsojbackendquestionservice.rabbitmq.MyMessageProducer;
+import com.js.jsojbackendquestionservice.rabbitmq.QuestionSubmitMessageProducer;
 import com.js.jsojbackendquestionservice.service.QuestionService;
 import com.js.jsojbackendquestionservice.service.QuestionSubmitService;
 import com.js.jsojbackendserviceclient.service.JudgeFeignClient;
@@ -25,10 +25,10 @@ import com.js.jsojbackendserviceclient.service.UserFeignClient;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 
@@ -52,7 +52,10 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     private JudgeFeignClient judgeFeignClient;
 
     @Resource
-    private MyMessageProducer myMessageProducer;
+    private QuestionSubmitMessageProducer questionSubmitMessageProducer;
+
+    private static final String CODE_EXCHANGE = "code_exchange";
+    private static final String ROUTING_KEY = "routingKey";
 
     /**
      * 提交题目
@@ -62,41 +65,55 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
      * @return long
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public long doQuestionSubmit(QuestionSubmitAddRequest questionSubmitAddRequest, User loginUser) {
-        // 校验编程语言是否合法
-        String language = questionSubmitAddRequest.getLanguage();
+        // 校验
+        validateLanguage(questionSubmitAddRequest.getLanguage());
+        validateQuestion(questionSubmitAddRequest.getQuestionId());
+
+        // 保存提交记录
+        QuestionSubmit questionSubmit = buildQuestionSubmit(questionSubmitAddRequest, loginUser);
+        boolean save = this.save(questionSubmit);
+        ThrowUtils.throwIf(!save, ErrorCode.SYSTEM_ERROR, "提交题目失败");
+
+        // 发送消息
+        questionSubmitMessageProducer.sendMessage(CODE_EXCHANGE, ROUTING_KEY, String.valueOf(questionSubmit.getId()));
+        return questionSubmit.getId();
+    }
+
+    /**
+     * 校验语言合法性
+     * @param language 语言类型
+     */
+    private void validateLanguage(String language) {
         QuestionSubmitLanguageEnum languageEnum = QuestionSubmitLanguageEnum.getEnumByValue(language);
-        if (languageEnum == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "编程语言错误");
-        }
-        // 判断实体是否存在，根据类别获取实体
-        Long questionId = questionSubmitAddRequest.getQuestionId();
+        ThrowUtils.throwIf(languageEnum == null, ErrorCode.PARAMS_ERROR, "编程语言错误");
+    }
+
+    /**
+     * 校验题目是否存在
+     * @param questionId 题目Id
+     */
+    private void validateQuestion(Long questionId) {
         Question question = questionService.getById(questionId);
-        if (question == null) {
-            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
-        }
-        // 每个用户串行提交题目
-        long userId = loginUser.getId();
+        ThrowUtils.throwIf(question == null, ErrorCode.NOT_FOUND_ERROR);
+    }
+
+    /**
+     * 构建题目提交实体类
+     * @param questionSubmitAddRequest 构建题目提交信息请求
+     * @param loginUser 当前线程用户
+     * @return 提交信息QuestionSubmit
+     */
+    private QuestionSubmit buildQuestionSubmit(QuestionSubmitAddRequest questionSubmitAddRequest, User loginUser) {
         QuestionSubmit questionSubmit = new QuestionSubmit();
-        questionSubmit.setUserId(userId);
-        questionSubmit.setQuestionId(questionId);
+        questionSubmit.setUserId(loginUser.getId());
+        questionSubmit.setQuestionId(questionSubmitAddRequest.getQuestionId());
         questionSubmit.setCode(questionSubmitAddRequest.getCode());
         questionSubmit.setLanguage(questionSubmitAddRequest.getLanguage());
-        // 设置初始状态
         questionSubmit.setStatus(QuestionStatusEnum.WAITING.getValue());
         questionSubmit.setJudgeInfo("{}");
-        boolean save = this.save(questionSubmit);
-        if (!save) {
-            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "数据插入失败");
-        }
-        Long questionSubmitId = questionSubmit.getId();
-        // 发送消息
-        // myMessageProducer.sendMessage("code_exchange", "my_routingKey", String.valueOf(questionSubmitId));
-        // 异步执行判题服务
-        CompletableFuture.runAsync(() -> {
-            judgeFeignClient.doJudge(questionSubmitId);
-        });
-        return questionSubmitId;
+        return questionSubmit;
     }
 
     /**

@@ -7,13 +7,13 @@ import com.js.jsojbackendmodel.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.js.jsojbackendmodel.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.js.jsojbackendmodel.entity.QuestionSubmit;
 import com.js.jsojbackendmodel.entity.User;
-import com.js.jsojbackendmodel.vo.QuestionSubmitVO;
+import com.js.jsojbackendmodel.vo.user.QuestionSubmitVO;
 
 /**
-* @author jsnlg
-* @description 针对表【question_submit(题目提交表)】的数据库操作Service
-* @createDate 2024-10-15 15:12:13
-*/
+ * @author jsnlg
+ * @description 针对表【question_submit(题目提交表)】的数据库操作Service
+ * @createDate 2024-10-15 15:12:13
+ */
 public interface QuestionSubmitService extends IService<QuestionSubmit> {
 
     /**
