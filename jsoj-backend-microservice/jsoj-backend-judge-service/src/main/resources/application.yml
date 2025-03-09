@@ -58,5 +58,3 @@ cos:
 # ??????
 knife4j:
   enable: true
-codesandbox:
-  type: remote
