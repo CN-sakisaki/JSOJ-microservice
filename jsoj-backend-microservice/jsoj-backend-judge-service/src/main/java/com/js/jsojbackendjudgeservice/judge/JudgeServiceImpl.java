@@ -19,31 +19,37 @@ import com.js.jsojbackendserviceclient.service.QuestionFeignClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 /**
- * 判题服务实现类
  *
- * @author JianShang
- * @version 1.0.0
- * @time 2024-10-24 02:46:04
+ * @author sakisaki
+ * @date 2025/3/9 20:11
  */
 @Service
 public class JudgeServiceImpl implements JudgeService {
 
+    // 从配置文件中获取代码沙箱的类型，默认值为 "example"
     @Value("${codesandbox.type:example}")
     private String type;
+
     @Resource
     private QuestionFeignClient questionFeignClient;
+
     @Resource
     private JudgeManager judgeManager;
+
     @Resource
     private JudgeStateMachine judgeStateMachine;
 
+    /**
+     * 执行判题操作
+     * @param questionSubmitId 题目提交记录的 ID
+     * @return 判题完成后的题目提交记录
+     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public QuestionSubmit doJudge(long questionSubmitId) {
@@ -86,7 +92,7 @@ public class JudgeServiceImpl implements JudgeService {
             // 7. 构建判题上下文
             JudgeContext context = JudgeContext.builder()
                     .judgeInfo(response.getJudgeInfo())
-                    // 使用本地计算的inputList
+                    // 使用本地计算的 inputList
                     .inputList(inputList)
                     .outputList(response.getOutputList())
                     .judgeCaseList(judgeCases)
@@ -111,6 +117,8 @@ public class JudgeServiceImpl implements JudgeService {
 
     /**
      * 校验提交信息合法性
+     * @param submit 题目提交记录
+     * @param questionId 题目 ID
      */
     private void validateSubmission(QuestionSubmit submit, Long questionId) {
         if (submit == null) {
@@ -125,28 +133,39 @@ public class JudgeServiceImpl implements JudgeService {
         }
     }
 
+    /**
+     * 带超时时间执行代码沙箱
+     * @param request 执行代码的请求
+     * @return 执行代码的响应
+     * @throws TimeoutException 若执行超时抛出此异常
+     */
     private ExecuteCodeResponse executeWithTimeout(ExecuteCodeRequest request) throws TimeoutException {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<ExecuteCodeResponse> future = null;
         try {
             future = executor.submit(() -> {
+                // 使用工厂模式创建代码沙箱实例，并使用代理包装
                 CodeSandBox sandbox = new CodeSandBoxProxy(CodeSandBoxFactory.newInstance(type));
                 return sandbox.executeCode(request);
             });
-            // 可配置化
+            // 可配置化，设置超时时间为 10 秒
             return future.get(10, TimeUnit.SECONDS);
         } catch (TimeoutException e) {
+            // 超时则取消任务
             future.cancel(true);
             throw e;
         } catch (ExecutionException | InterruptedException e) {
             throw new RuntimeException(e);
         } finally {
+            // 关闭线程池
             executor.shutdownNow();
         }
     }
 
     /**
      * 持久化判题结果
+     * @param submitId 题目提交记录的 ID
+     * @param judgeInfo 判题信息
      */
     private void saveJudgeResult(Long submitId, JudgeInfo judgeInfo) {
         QuestionSubmit update = new QuestionSubmit();
@@ -158,6 +177,10 @@ public class JudgeServiceImpl implements JudgeService {
         }
     }
 
+    /**
+     * 处理判题超时情况
+     * @param submitId 题目提交记录的 ID
+     */
     private void handleTimeout(Long submitId) {
         QuestionSubmit update = new QuestionSubmit();
         update.setId(submitId);
@@ -166,6 +189,10 @@ public class JudgeServiceImpl implements JudgeService {
         questionFeignClient.updateQuestionSubmitById(update);
     }
 
+    /**
+     * 处理判题失败情况
+     * @param submitId 题目提交记录的 ID
+     */
     private void handleFailure(Long submitId) {
         QuestionSubmit update = new QuestionSubmit();
         update.setId(submitId);
@@ -174,5 +201,3 @@ public class JudgeServiceImpl implements JudgeService {
         questionFeignClient.updateQuestionSubmitById(update);
     }
 }
-
-
