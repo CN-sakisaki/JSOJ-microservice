@@ -26,7 +26,6 @@ spring:
     port: 5672
     password: guest
     username: guest
-  #    password: 123456
   # ????
   servlet:
     multipart:
@@ -37,11 +36,11 @@ server:
   port: 8103
   servlet:
     context-path: /api/question
-    # cookie 30 ???
-    session:
-      cookie:
-        max-age: 2592000
-        path: /api
+  #    # cookie 30 ???
+  #    session:
+  #      cookie:
+  #        max-age: 2592000
+  #        path: /api
   # 注册到 nacos 服务
   cloud:
     nacos:
@@ -53,9 +52,9 @@ mybatis-plus:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
-      logic-delete-field: isDelete # ????????????
-      logic-delete-value: 1 # ?????????? 1?
-      logic-not-delete-value: 0 # ?????????? 0?
+      logic-delete-field: isDelete
+      logic-delete-value: 1
+      logic-not-delete-value: 0
 # ????
 cos:
   client:
