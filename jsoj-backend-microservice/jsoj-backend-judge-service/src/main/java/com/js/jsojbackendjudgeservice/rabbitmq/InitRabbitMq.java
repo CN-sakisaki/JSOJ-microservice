@@ -27,7 +27,7 @@ public class InitRabbitMq {
             // 创建队列,随机分配一个队列名称
             String codeQueue = "code_queue";
             channel.queueDeclare(codeQueue, true, false, false, null);
-            channel.queueBind(codeQueue, EXCHANGE_NAME, "my_routingKey");
+            channel.queueBind(codeQueue, EXCHANGE_NAME, "routingKey");
             log.info("消息队列启动成功！");
         } catch (Exception e) {
             log.error("消息队列启动失败");

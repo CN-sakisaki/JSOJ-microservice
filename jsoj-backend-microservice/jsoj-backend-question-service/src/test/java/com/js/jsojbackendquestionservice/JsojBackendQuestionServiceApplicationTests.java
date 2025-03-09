@@ -1,6 +1,6 @@
 package com.js.jsojbackendquestionservice;
 
-import com.js.jsojbackendquestionservice.rabbitmq.MyMessageProducer;
+import com.js.jsojbackendquestionservice.rabbitmq.QuestionSubmitMessageProducer;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -14,7 +14,7 @@ class JsojBackendQuestionServiceApplicationTests {
     }
 
     @Resource
-    private MyMessageProducer myMessageProducer;
+    private QuestionSubmitMessageProducer myMessageProducer;
 
     @Test
     void sendMessage() {

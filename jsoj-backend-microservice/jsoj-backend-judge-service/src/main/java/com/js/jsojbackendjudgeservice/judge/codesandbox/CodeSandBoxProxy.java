@@ -20,9 +20,9 @@ public class CodeSandBoxProxy implements CodeSandBox {
 
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {
-        log.info("代码沙箱请求信息：" + executeCodeRequest.toString());
+        log.info("代码沙箱请求信息：{}", executeCodeRequest.toString());
         ExecuteCodeResponse executeCodeResponse = codeSandbox.executeCode(executeCodeRequest);
-        log.info("代码沙箱响应信息：" + executeCodeResponse.toString());
+        log.info("代码沙箱响应信息：{}", executeCodeResponse.toString());
         return executeCodeResponse;
     }
 }

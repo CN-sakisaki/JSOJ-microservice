@@ -5,6 +5,7 @@ import com.js.jsojbackendmodel.codesandbox.JudgeInfo;
 import com.js.jsojbackendmodel.dto.question.JudgeCase;
 import com.js.jsojbackendmodel.entity.Question;
 import com.js.jsojbackendmodel.entity.QuestionSubmit;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.List;
@@ -17,6 +18,7 @@ import java.util.List;
  * @time 2024-10-24 04:11:14
  */
 @Data
+@Builder
 public class JudgeContext {
     private JudgeInfo judgeInfo;
 

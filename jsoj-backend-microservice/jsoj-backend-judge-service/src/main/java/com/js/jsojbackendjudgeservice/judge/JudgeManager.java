@@ -2,7 +2,6 @@ package com.js.jsojbackendjudgeservice.judge;
 
 import com.js.jsojbackendjudgeservice.judge.strategy.JudgeContext;
 import com.js.jsojbackendjudgeservice.judge.strategy.JudgeStrategy;
-import com.js.jsojbackendjudgeservice.judge.strategy.impl.DefaultJudgeStrategy;
 import com.js.jsojbackendjudgeservice.judge.strategy.impl.JavaLanguageJudgeStrategy;
 import com.js.jsojbackendmodel.codesandbox.JudgeInfo;
 import com.js.jsojbackendmodel.entity.QuestionSubmit;
@@ -27,10 +26,12 @@ public class JudgeManager {
     public JudgeInfo doJudge(JudgeContext judgeContext) {
         QuestionSubmit questionSubmit = judgeContext.getQuestionSubmit();
         String language = questionSubmit.getLanguage();
-        JudgeStrategy judgeStrategy = new DefaultJudgeStrategy();
         if ("java".equals(language)) {
-            judgeStrategy = new JavaLanguageJudgeStrategy();
+            JudgeStrategy judgeStrategy = new JavaLanguageJudgeStrategy();
+            return judgeStrategy.doJudge(judgeContext);
+        } else {
+            JudgeStrategy judgeStrategy = new JavaLanguageJudgeStrategy();
+            return judgeStrategy.doJudge(judgeContext);
         }
-        return judgeStrategy.doJudge(judgeContext);
     }
 }
