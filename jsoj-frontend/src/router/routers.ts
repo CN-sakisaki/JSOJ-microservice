@@ -1,5 +1,5 @@
 import { RouteRecordRaw } from "vue-router";
-import NoAuth from "@/views/NoAuth.vue";
+import NoAuth from "@/components/NoAuth.vue";
 import ACCESS_ENUM from "@/access/accessEnum";
 import UserLayout from "@/layouts/UserLayout.vue";
 import UserLoginView from "@/views/user/UserLoginView.vue";
